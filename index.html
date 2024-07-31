@@ -1,11 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
-	</head>
-	<body>
-		<h3>hello world</h3>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- import CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <title>Document</title>
+    <style>
+      div {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div>
+        <el-button @click="getWebUrl">getWebUrl</el-button>
+      </div>
+
+      <div>
+        <el-link :href="link" target="_blank">
+          <el-button> _blank</el-button>
+        </el-link>
+        <el-link :href="link" target="_self">
+          <el-button> _self</el-button>
+        </el-link>
+        <el-link>{{link}}</el-link>
+      </div>
+    </div>
+  </body>
+  <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script>
+    function generateRandomNumber(length) {
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        // 在每次循环中生成一个0到9之间的随机整数，并将其转换为字符串
+        const randomDigit = Math.floor(Math.random() * 10).toString();
+        result += randomDigit;
+      }
+      return result;
+    }
+    function getWebUrl() {
+      return new Promise((resolve, reject) => {
+        var myHeaders = new Headers();
+        myHeaders.append("User-Agent", "Apifox/1.0.0 (https://apifox.com)");
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+          appId: "TEST000001",
+          sign: "TEST000001",
+          // merchantOrderNo: "113131362115942171225",
+          merchantOrderNo: "113131362115942" + generateRandomNumber(6),
+          userId: "505884978@qq.com",
+          orderAmount: "1000",
+          payCurrency: "USD",
+          redirectURL: "http://127.0.0.1:8022/open/api/payment2",
+          callbackURL: "http://127.0.0.1:8022/open/api/callback",
+        });
+
+        var requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        };
+        fetch(
+          "https://crypto-payment-dev.alchemytech.cc/open/api/payment",
+          requestOptions
+        )
+          .then((response) => response.json())
+          .then((result) => {
+            console.log(result);
+            resolve(result);
+          })
+          .catch((error) => console.log("error", error));
+      });
+    }
+  </script>
+
+  <script>
+    window.vm = new Vue({
+      el: "#app",
+      data() {
+        return {
+          link: "",
+        };
+      },
+      methods: {
+        getWebUrl() {
+          console.log(123);
+          getWebUrl().then(({ code, model }) => {
+            console.log(code);
+            console.log(model);
+            if (code === "0") {
+              this.link = model?.webUrl;
+            }
+          });
+        },
+      },
+    });
+  </script>
 </html>
