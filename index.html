@@ -25,9 +25,8 @@
         <el-link :href="link" target="_blank">
           <el-button> _blank</el-button>
         </el-link>
-        <el-link :href="link" target="_self">
-          <el-button> _self</el-button>
-        </el-link>
+
+        <el-button @click="_self"> _self</el-button>
         <el-link>{{link}}</el-link>
       </div>
     </div>
@@ -100,6 +99,9 @@
               this.link = model?.webUrl;
             }
           });
+        },
+        _self() {
+          window.location.href = this.link;
         },
       },
     });
