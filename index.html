@@ -56,7 +56,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           <el-button> _blank</el-button>
         </el-link>
 
-        <el-button @click="_self"> _self</el-button>
+        <el-button @click="a_self"> _self</el-button>
         <el-link>{{link}}</el-link>
       </div>
     </div>
@@ -67,6 +67,18 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
   <script>
     new VConsole();
     console.log(window);
+    console.log(window.telegram);
+  </script>
+  <script>
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") {
+        console.log("页面现在是可见的");
+        // 执行当页面可见时的操作
+      } else {
+        console.log("页面现在是隐藏的");
+        // 执行当页面隐藏时的操作
+      }
+    });
   </script>
   <script>
     var env = "test";
@@ -129,6 +141,9 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
         };
       },
       computed: {},
+      mounted() {
+        this.isTelegram();
+      },
       methods: {
         getWebUrl() {
           console.log(123);
@@ -140,7 +155,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             }
           });
         },
-        _self() {
+        a_self() {
           window.location.href = this.link;
         },
         setEnv(type) {
@@ -152,6 +167,15 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             "bnc://app.binance.com/payment/secpay?tempToken=XlmtzXu70AU4VWN2DeZbDYbHTf4WpBjY&returnLink=https://test-crypto-payment.alchemypay.org?userCance=false&orderNum=300217224116810101451&cancelLink=https://test-crypto-payment.alchemypay.org?userCance=true&orderNum=300217224116810101451",
             "_blank"
           );
+        },
+        isTelegram() {
+          let telegram = window.Telegram;
+
+          const userAgent =
+            navigator.userAgent || navigator.vendor || window.opera;
+          let c = /Telegram/i.test(userAgent);
+          console.log("telegram");
+          console.log(telegram, c);
         },
       },
     });
