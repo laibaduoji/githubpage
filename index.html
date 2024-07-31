@@ -172,8 +172,8 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
         },
         isTelegram() {
           let telegram =
-            window.Telegram?.initData ||
-            window.Telegram?.initDataUnsafe?.query_id;
+            window.Telegram?.WebApp?.initData ||
+            window.Telegram?.WebApp?.initDataUnsafe?.query_id;
 
           const userAgent =
             navigator.userAgent || navigator.vendor || window.opera;
