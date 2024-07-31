@@ -180,6 +180,12 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           let c = /Telegram/i.test(userAgent);
           console.log("telegram");
           console.log("query_id");
+          console.log(window.Telegram);
+          console.log(window.Telegram?.WebApp);
+          console.log(window.Telegram?.WebApp?.initData);
+          console.log(window.Telegram?.WebApp?.initDataUnsafe);
+          console.log(window.Telegram?.WebApp?.initDataUnsafe?.query_id);
+          console.log("end");
           console.log(telegram, c);
         },
       },
