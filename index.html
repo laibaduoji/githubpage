@@ -13,15 +13,24 @@
       div {
         margin-bottom: 20px;
       }
+      .active {
+        color: #409eff;
+      }
     </style>
   </head>
   <body>
     <div id="app">
       <div>
         <el-button @click="getWebUrl">getWebUrl</el-button>
-        <el-button @click="setEnv('dev')">dev</el-button>
-        <el-button @click="setEnv('test')">test</el-button>
-        <el-button @click="setEnv('pro')">pro</el-button>
+        <el-button :class="{'active':env=='dev'}" @click="setEnv('dev')"
+          >dev</el-button
+        >
+        <el-button :class="{'active':env=='test'}" @click="setEnv('test')"
+          >test</el-button
+        >
+        <el-button :class="{'active':env=='pro'}" @click="setEnv('pro')"
+          >pro</el-button
+        >
       </div>
 
       <div>
@@ -36,6 +45,11 @@
   </body>
   <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
   <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
+  <script>
+    new VConsole();
+    console.log(window);
+  </script>
   <script>
     var env = "test";
     function generateRandomNumber(length) {
@@ -93,8 +107,10 @@
       data() {
         return {
           link: "",
+          env: env,
         };
       },
+      computed: {},
       methods: {
         getWebUrl() {
           console.log(123);
@@ -110,6 +126,7 @@
           window.location.href = this.link;
         },
         setEnv(type) {
+          this.env = type;
           window.env = type;
         },
       },
