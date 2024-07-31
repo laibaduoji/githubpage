@@ -142,7 +142,9 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
       },
       computed: {},
       mounted() {
-        this.isTelegram();
+        setTimeout(() => {
+          this.isTelegram();
+        }, 3000);
       },
       methods: {
         getWebUrl() {
@@ -177,6 +179,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             navigator.userAgent || navigator.vendor || window.opera;
           let c = /Telegram/i.test(userAgent);
           console.log("telegram");
+          console.log("query_id");
           console.log(telegram, c);
         },
       },
