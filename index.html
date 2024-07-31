@@ -32,7 +32,8 @@
           >pro</el-button
         >
       </div>
-
+      <el-button @click="openBinance">openBinance</el-button>
+      <el-input v-model="input" placeholder="请输入内容"></el-input>
       <div>
         <el-link :href="link" target="_blank">
           <el-button> _blank</el-button>
@@ -128,6 +129,12 @@
         setEnv(type) {
           this.env = type;
           window.env = type;
+        },
+        openBinance() {
+          window.open(
+            "bnc://app.binance.com/payment/secpay?tempToken=XlmtzXu70AU4VWN2DeZbDYbHTf4WpBjY&returnLink=https://test-crypto-payment.alchemypay.org?userCance=false&orderNum=300217224116810101451&cancelLink=https://test-crypto-payment.alchemypay.org?userCance=true&orderNum=300217224116810101451",
+            "_blank"
+          );
         },
       },
     });
