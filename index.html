@@ -127,9 +127,9 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           redirect: "follow",
         };
         const urlMap = {
-          dev: "https://crypto-payment-dev.alchemytech.cc/open/api/payment",
-          test: "https://crypto-payment-test.alchemytech.cc/open/api/payment",
-          pro: "https://crypto-payment.alchemytech.cc/open/api/payment",
+          dev: "https://crypto-payment-dev.alchemytech.cc/open/api/tgPayment",
+          test: "https://crypto-payment-test.alchemytech.cc/open/api/tgPayment",
+          pro: "https://crypto-payment.alchemytech.cc/open/api/tgPayment",
         };
         fetch(urlMap[env], requestOptions)
           .then((response) => response.json())
