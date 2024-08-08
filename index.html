@@ -10,6 +10,11 @@
     />
     <title>Document</title>
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+    <script
+      id="risk-js"
+      async
+      src="https://risk.checkout.com/cdn/risk/1/risk.js"
+    ></script>
     <style>
       div {
         margin-bottom: 20px;
@@ -201,6 +206,17 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           console.groupEnd();
         },
       },
+    });
+  </script>
+
+  <script>
+    const script = document.getElementById("risk-js");
+
+    script.addEventListener("load", async () => {
+      // use Risk.js here
+      const risk = window.Risk.init("pk_aldlsnx6lhkjggag4qe2nff4c4h");
+      const deviceSessionId = await risk.publishRiskData(); // dsid_XXXX
+      console.log(deviceSessionId);
     });
   </script>
 </html>
