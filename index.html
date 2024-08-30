@@ -37,7 +37,6 @@
       data() {
         return {
           link: "",
-          env: env,
         };
       },
       computed: {},
@@ -48,29 +47,6 @@
         }, 3000);
       },
       methods: {
-        getWebUrl() {
-          console.log(123);
-          getWebUrl().then(({ code, model }) => {
-            console.log(code);
-            console.log(model);
-            if (code === "0") {
-              this.link = model?.webUrl;
-            }
-          });
-        },
-        a_self() {
-          window.location.href = this.link;
-        },
-        setEnv(type) {
-          this.env = type;
-          window.env = type;
-        },
-        openBinance() {
-          window.open(
-            "bnc://app.binance.com/payment/secpay?tempToken=XlmtzXu70AU4VWN2DeZbDYbHTf4WpBjY&returnLink=https://test-crypto-payment.alchemypay.org?userCance=false&orderNum=300217224116810101451&cancelLink=https://test-crypto-payment.alchemypay.org?userCance=true&orderNum=300217224116810101451",
-            "_blank"
-          );
-        },
         isTelegram() {
           let telegram =
             window.Telegram?.WebApp?.initData ||
