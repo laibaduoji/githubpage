@@ -22,9 +22,9 @@
   <body>
     <div id="app">
       <div>
-        <el-button @click="getWebUrl">getWebUrl</el-button>
+        <el-button @click="getWebUrl">2. getWebUrl</el-button>
         <el-button :class="{'active':env=='dev'}" @click="setEnv('dev')"
-          >dev</el-button
+          >1.dev</el-button
         >
         <el-button :class="{'active':env=='test'}" @click="setEnv('test')"
           >test</el-button
@@ -56,7 +56,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           <el-button> _blank</el-button>
         </el-link>
 
-        <el-button @click="a_self"> _self</el-button>
+        <el-button @click="a_self"> 3. _self</el-button>
         <el-link>{{link}}</el-link>
       </div>
       <div>
