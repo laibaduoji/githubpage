@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        padding: 100px;
+      }
+    </style>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  </head>
+  <body>
+    <div id="ton-connect"></div>
+  </body>
+  <script>
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: "https://laibaduoji.github.io/githubpage/manifest.json",
+      buttonRootId: "ton-connect",
+    });
+
+    tonConnectUI.uiOptions = {
+      actionsConfiguration: {
+        // returnStrategy: "none",
+        twaReturnUrl:
+          "https://t.me/capybara_nation_bot/start?startapp=ref_5847529284",
+      },
+    };
+
+    console.log(tonConnectUI);
+    console.log(tonConnectUI.uiOptions);
+    async function connectToWallet() {
+      const connectedWallet = await tonConnectUI.connectWallet();
+      // Do something with connectedWallet if needed
+      console.log(connectedWallet);
+      console.log(tonConnectUI);
+    }
+
+    // Call the function
+    connectToWallet().catch((error) => {
+      console.error("Error connecting to wallet:", error);
+    });
+  </script>
+</html>
