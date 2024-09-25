@@ -1,60 +1,45 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Storage 测试</title>
-</head>
-<body>
-    <h1>Storage 测试</h1>
-    
-    <h2>localStorage 测试</h2>
-    <button onclick="testLocalStorage()">测试 localStorage</button>
-	<button onclick="getLocalStorage()">获取 localStorage</button>
-    <p id="localStorageResult"></p>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <a
+      href="bnc://app.binance.com/payment/secpay?tempToken=EtCzJAFfsgaUZEEuNxLMgQQnYuwylnzY"
+      onclick="handleLinkClick(event)"
+    >
+      打开应用
+    </a>
+  </body>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
+  <script>
+    new VConsole();
+  </script>
+  <script>
+    /*
 
-    <h2>sessionStorage 测试</h2>
-    <button onclick="testSessionStorage()">测试 sessionStorage</button>
-	<button onclick="getSessionStorage()">获取 sessionStorage</button>
-    <p id="sessionStorageResult"></p>
+    "model": {
+        "deeplink": "bnc://app.binance.com/payment/secpay?tempToken=EtCzJAFfsgaUZEEuNxLMgQQnYuwylnzY",
+        "prepayId": "320848559222538240",
+        "checkoutUrl": "https://pay.binance.com/en/checkout/f0aa4fd3cef84779855e50b324d73792"
+    },
 
-    <script>
-        function testLocalStorage() {
-            try {
-                localStorage.setItem('testKey', '这是一个localStorage测试');
-                const value = localStorage.getItem('testKey');
-                document.getElementById('localStorageResult').textContent = 
-                    `localStorage 生效！存储的值: ${value}`;
-            } catch (e) {
-                document.getElementById('localStorageResult').textContent = 
-                    'localStorage 不可用: ' + e.message;
-            }
+ */
+
+    const handleLinkClick = (event) => {
+      const start = Date.now();
+      const timeout = 2000; // 设置超时时间
+
+      setTimeout(() => {
+        const duration = Date.now() - start;
+        if (duration < timeout) {
+          console.log("用户可能选择了打开应用");
+        } else {
+          console.log("用户可能没有打开应用");
         }
-
-        function testSessionStorage() {
-            try {
-                sessionStorage.setItem('testKey', '这是一个sessionStorage测试');
-                const value = sessionStorage.getItem('testKey');
-                document.getElementById('sessionStorageResult').textContent = 
-                    `sessionStorage 生效！存储的值: ${value}`;
-            } catch (e) {
-                document.getElementById('sessionStorageResult').textContent = 
-                    'sessionStorage 不可用: ' + e.message;
-            }
-        }
-
-
-        function getLocalStorage() {
-            const value = localStorage.getItem('testKey');
-            document.getElementById('localStorageResult').textContent = 
-                `localStorage 中的值: ${value || '未找到'}`;
-        }
-
-        function getSessionStorage() {
-            const value = sessionStorage.getItem('testKey');
-            document.getElementById('sessionStorageResult').textContent = 
-                `sessionStorage 中的值: ${value || '未找到'}`;
-        }
-    </script>
-</body>
+      }, timeout);
+    };
+  </script>
 </html>
