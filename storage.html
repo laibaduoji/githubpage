@@ -12,6 +12,8 @@
     >
       打开应用
     </a>
+
+    <div id="result"></div>
   </body>
   <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
   <script>
@@ -31,13 +33,13 @@
     const handleLinkClick = (event) => {
       const start = Date.now();
       const timeout = 2000; // 设置超时时间
-
+      const result = document.querySelector("#result");
       setTimeout(() => {
         const duration = Date.now() - start;
         if (duration < timeout) {
-          console.log("用户可能选择了打开应用");
+          result.innerText = "用户可能选择了打开应用";
         } else {
-          console.log("用户可能没有打开应用");
+          result.innerText = "用户可能没有打开应用";
         }
       }, timeout);
     };
