@@ -14,6 +14,7 @@
     </a>
 
     <div id="result"></div>
+    <div id="result11"></div>
   </body>
   <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
   <script>
@@ -43,5 +44,21 @@
         }
       }, timeout);
     };
+    const result11 = document.querySelector("#result11");
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") {
+        result11.innerText = "页面现在是可见的";
+        // 执行当页面可见时的操作
+        const visibleDiv = document.createElement("div");
+        visibleDiv.innerText = "页面现在是可见的内容";
+        document.body.appendChild(visibleDiv);
+      } else {
+        result11.innerText = "页面现在是隐藏的";
+        // 执行当页面隐藏时的操作
+        const hiddenDiv = document.createElement("div");
+        hiddenDiv.innerText = "页面现在是隐藏的内容";
+        document.body.appendChild(hiddenDiv);
+      }
+    });
   </script>
 </html>
