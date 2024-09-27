@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ramp_get_token</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      .flex {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #app {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+    <link rel="stylesheet" href="./libs/element-ui/index.css" />
+  </head>
+  <body>
+    <div id="app">
+      <el-form
+        ref="form"
+        :model="form"
+        label-width="180px"
+        style="width: 600px"
+      >
+        <el-form-item label="当前环境">
+          <el-radio-group v-model="currentEnv">
+            <el-radio
+              ref="radio_ref"
+              v-for="(item,key,index) in envMapApiUrl"
+              :key="key"
+              :label="key"
+              >{{key}}</el-radio
+            >
+          </el-radio-group>
+
+          <el-radio-group v-model="isLocal">
+            <el-radio ref="radio_ref1" :label="true" :key="1"
+              >本地环境</el-radio
+            >
+            <el-radio ref="radio_ref2" :label="false" :key="2"
+              >服务器环境</el-radio
+            >
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="mer_app_id">
+          <el-input v-model="form.mer_app_id" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="mer_app_secret">
+          <el-input v-model="form.mer_app_secret" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="Email">
+          <div class="flex">
+            <el-input v-model="form.email"></el-input>
+            <el-button type="primary" @click="createRandomEmail"
+              >Random Email</el-button
+            >
+          </div>
+        </el-form-item>
+        <el-form-item v-if="isLocal" label="Origin">
+          <el-input v-model="form.origin"></el-input>
+        </el-form-item>
+        <el-form-item v-else label="Server">
+          <el-input readonly v-model="ServerOrigin"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onGetToken">GetToken</el-button>
+        </el-form-item>
+        <el-form-item v-if="error">
+          <span style="color: red">{{ errorMsg }}</span>
+        </el-form-item>
+      </el-form>
+    </div>
+  </body>
+  <script src="./libs/vue/vue.js"></script>
+  <script src="./libs/element-ui/index.js"></script>
+  <script src="./libs/axios/axios.js"></script>
+  <script src="./libs/crypto-js/crypto-js.js"></script>
+  <script>
+    const vm = new Vue({
+      el: "#app",
+      data() {
+        return {
+          envMapApiUrl: {
+            sbx: "https://openapi-test.alchemypay.org",
+            pro: "https://api.alchemypay.org",
+            test: "https://api-test.alchemytech.cc",
+            pre: "https://api-pre.alchemytech.cc",
+            dev: "https://api-dev.alchemytech.cc",
+          },
+          envMapOriginUrl: {
+            sbx: "https://ramptest.alchemypay.org",
+            pro: " https://ramp.alchemypay.org",
+            test: "https://ramp-test.alchemytech.cc",
+            pre: "https://ramp-pre.alchemytech.cc",
+            dev: "https://ramp-dev.alchemytech.cc",
+          },
+          currentEnv: "test",
+          isLocal: true,
+          form: {
+            mer_app_id: "ahzxh0klegv1fzol",
+            mer_app_secret: "py2bwighth62ajq6",
+            origin: "http://localhost:8080",
+            email: "AchTestEmail@alchemytech.io",
+          },
+          error: false,
+          errorMsg: "",
+        };
+      },
+
+      computed: {
+        currentUrl() {
+          return this.envMapApiUrl[this.currentEnv];
+        },
+        ServerOrigin() {
+          return this.envMapOriginUrl[this.currentEnv];
+        },
+        baseUrl() {
+          return this.isLocal ? this.form.origin : this.ServerOrigin;
+        },
+      },
+      mounted() {
+        this.removeRadioAriaHiddenAttr();
+        this.createRandomEmail();
+      },
+      methods: {
+        createRandomEmail() {
+          this.form.email =
+            "Ach_Test_" +
+            Math.random().toString(36).slice(-8) +
+            "@alchemytech.io";
+        },
+        removeRadioAriaHiddenAttr() {
+          // 移除 input[type="radio"] 元素的 aria-hidden 属性; 原因是 浏览器控制台报错
+
+          this.$refs.radio_ref.forEach((_ref) => {
+            // 获取 radio_ref 下的 input[type="radio"] 元素
+            const radioInput = _ref.$el.querySelector('input[type="radio"]');
+            if (radioInput) {
+              radioInput.removeAttribute("aria-hidden");
+            }
+          });
+
+          this.$refs.radio_ref1.$el
+            .querySelector('input[type="radio"]')
+            .removeAttribute("aria-hidden");
+          this.$refs.radio_ref2.$el
+            .querySelector('input[type="radio"]')
+            .removeAttribute("aria-hidden");
+        },
+        async onGetToken() {
+          const body = {
+            email: this.form.email,
+          };
+          const timestamp = Math.floor(Date.now() / 1000) * 1000;
+          try {
+            const response = await axios.post(
+              `${this.currentUrl}/merchant/getToken`,
+              body,
+              {
+                headers: this.getHeaders(
+                  this.form.mer_app_id,
+                  this.form.mer_app_secret,
+                  timestamp
+                ),
+                // Axios 自动将对象转换为 JSON，因此不需要使用 JSON.stringify
+              }
+            );
+            const accessToken = encodeURIComponent(
+              response.data.data.accessToken
+            );
+            console.log(accessToken);
+            const url = `${this.baseUrl}/?token=${accessToken}`;
+            console.log(url);
+            window.open(url, "_blank");
+            // return accessToken;
+          } catch (error) {
+            this.error = true;
+            this.errorMsg = error.message;
+
+            console.error("Error fetching token:", error);
+            throw error; // 处理错误
+          }
+        },
+        getHeaders(app_id, app_secret, timestamp) {
+          return {
+            "Content-Type": "application/json;charset=UTF-8",
+            appId: app_id,
+            timestamp: timestamp + "",
+            sign: this.get_mer_sign(app_id, app_secret, timestamp),
+          };
+        },
+        get_mer_sign(app_id, app_secret, timestamp) {
+          return this.getSha1Hash(app_id + app_secret + timestamp);
+        },
+        getSha1Hash(data) {
+          const hash = CryptoJS.SHA1(data).toString(CryptoJS.enc.Hex);
+          return hash;
+        },
+      },
+    });
+  </script>
+</html>
