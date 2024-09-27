@@ -29,6 +29,21 @@
   <body>
     <div id="app">
       <el-form
+        v-if="!isLogin"
+        ref="form"
+        :model="form"
+        label-width="180px"
+        style="width: 600px"
+      >
+        <el-form-item label="密码">
+          <el-input v-model="form.secretKey"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onLogin">Login</el-button>
+        </el-form-item>
+      </el-form>
+      <el-form
+        v-else
         ref="form"
         :model="form"
         label-width="180px"
@@ -76,6 +91,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onGetToken">GetToken</el-button>
+          <el-button type="primary" @click="onLogout">Logout</el-button>
         </el-form-item>
         <el-form-item v-if="error">
           <span style="color: red">{{ errorMsg }}</span>
@@ -88,32 +104,23 @@
   <script src="./libs/axios/axios.js"></script>
   <script src="./libs/crypto-js/crypto-js.js"></script>
   <script>
+    // 加密
+    const encryptedData =
+      "U2FsdGVkX1+gBGMLC/YzOy1fWBqD6we8DwNLDMFTeUP0G/IA4EGvhIIvqg4j2BqwNrxVn/JgLn6JRsnS1PtXNp5q9IqXPpbrBywRqBps7CT1IysofHMnnAaz9x9+ow5JUf10g2bp+aIafwQhgcmK5D/gf45eE0dBed66R/AC4WNcxJISmbHJw01rRRvLu0UM7Oty19Lwp+LIJxQDwHRPob+B0k+un/ZCnBqQx1PqKKsNjVlylPvQQu35F84cJ2kTvZd2OgIdgZEZFwtyXmGDzZw/yQ/DY7w6v9z/E0JeFBPMLJa31jbxbRJXnY6K4kWubBbF4uZ5ftVAXAWG0YRren6SpcfpKmViwpvteYZedm+P4VWZtqO79VgVmts+8IJqZXdFeNr0g88jjT++bS/QrInrDFYsvWp8CXSTACX+/kbVggFKDbcjwFTd+yUZcrUOCqtLsvihVzNrRgzg3kxt45WZFCtSsToBgVwd0I7PpEq3BqyE0Ewb7fLRF6HpWuE8rXZFv9/A7YfdSoYwXHaGs5CyqaTeUtmkfovgb0ZMVNcZOO1Uj0QjvuBRY0Tjs5da4aW/KGOpR7jsEadSlvHw1etdGhDgaDfP1bzsiA9C6XQTr2j7B8xIm5MJwiJ+CHyGrDfkmTWMxRU/pyZFwiS2NqbZCEKC1s+al2hG28UDSM7B82hyGbNQ/MWp18Tm+faUILdIVlQ8D5RQKu2YPG+eUtByDhKuXJpuOU0tbR/lVyA3cjlpLmYTtlyF6m3o4hrdmKg63z/xkWqTSeqOTI/lJug/gRa0XVNabOiLtoLfjgU=";
+  </script>
+  <script>
     const vm = new Vue({
       el: "#app",
       data() {
         return {
-          envMapApiUrl: {
-            sbx: "https://openapi-test.alchemypay.org",
-            pro: "https://api.alchemypay.org",
-            test: "https://api-test.alchemytech.cc",
-            pre: "https://api-pre.alchemytech.cc",
-            dev: "https://api-dev.alchemytech.cc",
-          },
-          envMapOriginUrl: {
-            sbx: "https://ramptest.alchemypay.org",
-            pro: " https://ramp.alchemypay.org",
-            test: "https://ramp-test.alchemytech.cc",
-            pre: "https://ramp-pre.alchemytech.cc",
-            dev: "https://ramp-dev.alchemytech.cc",
+          isLogin: false,
+          envMapApiUrl: {},
+          envMapOriginUrl: {},
+          form: {
+            secretKey: "",
           },
           currentEnv: "test",
           isLocal: true,
-          form: {
-            mer_app_id: "ahzxh0klegv1fzol",
-            mer_app_secret: "py2bwighth62ajq6",
-            origin: "http://localhost:8080",
-            email: "AchTestEmail@alchemytech.io",
-          },
           error: false,
           errorMsg: "",
         };
@@ -130,11 +137,72 @@
           return this.isLocal ? this.form.origin : this.ServerOrigin;
         },
       },
-      mounted() {
-        this.removeRadioAriaHiddenAttr();
-        this.createRandomEmail();
+      mounted() {},
+      watch: {
+        isLogin(val) {
+          if (val) {
+            this.$nextTick(() => {
+              this.removeRadioAriaHiddenAttr();
+              this.createRandomEmail();
+            });
+          }
+        },
+      },
+      created() {
+        this.tryLogin();
       },
       methods: {
+        onLogout() {
+          sessionStorage.removeItem("decryptedData");
+          this.isLogin = false;
+        },
+        tryLogin() {
+          const decryptedData = sessionStorage.getItem("decryptedData");
+          if (decryptedData) {
+            try {
+              // 登录成功;
+              const data = JSON.parse(decryptedData);
+              console.log("Decrypted:", data);
+              this.isLogin = true;
+              this.envMapApiUrl = data.envMapApiUrl;
+              this.envMapOriginUrl = data.envMapOriginUrl;
+              this.form = data.form;
+            } catch (e) {
+              this.isLogin = false;
+            }
+          } else {
+            this.isLogin = false;
+          }
+        },
+        onLogin() {
+          const decryptedData = this.decrypt(
+            encryptedData,
+            this.form.secretKey
+          );
+          // const decryptedData = decrypt(encryptedData, secretKey);
+          if (decryptedData) {
+            // 登录成功;
+            const data = JSON.parse(decryptedData);
+            console.log("Decrypted:", data);
+            this.isLogin = true;
+            this.envMapApiUrl = data.envMapApiUrl;
+            this.envMapOriginUrl = data.envMapOriginUrl;
+            this.form = data.form;
+            sessionStorage.setItem("decryptedData", decryptedData);
+          }
+        },
+
+        // 解密函数
+        decrypt(ciphertext, secret) {
+          try {
+            const bytes = CryptoJS.AES.decrypt(ciphertext, secret);
+            const originalData = bytes.toString(CryptoJS.enc.Utf8);
+            return originalData;
+          } catch (e) {
+            console.error("解密失败:", e);
+            return "";
+          }
+        },
         createRandomEmail() {
           this.form.email =
             "Ach_Test_" +

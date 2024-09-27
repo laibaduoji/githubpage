@@ -1,0 +1,25 @@
+{
+  "name": "githubpage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "rampToekn.local.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laibaduoji/githubpage.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/laibaduoji/githubpage/issues"
+  },
+  "homepage": "https://github.com/laibaduoji/githubpage#readme",
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "i": "^0.3.7",
+    "npm": "^10.8.3"
+  }
+}
