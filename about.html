@@ -1,37 +1,37 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Storage 测试</title>
-</head>
-<body>
-    <h1>Storage 测试</h1>
-    
-    <h2>localStorage 测试</h2>
-    <button onclick="testLocalStorage()">测试 localStorage</button>
-    <button onclick="getLocalStorage()">获取 localStorage</button>
-    <p id="localStorageResult"></p>
-
-    <h2>sessionStorage 测试</h2>
-    <button onclick="testSessionStorage()">测试 sessionStorage</button>
-    <button onclick="getSessionStorage()">获取 sessionStorage</button>
-    <p id="sessionStorageResult"></p>
-
-    <script>
-        // ... 现有的 testLocalStorage 和 testSessionStorage 函数 ...
-
-        function getLocalStorage() {
-            const value = localStorage.getItem('testKey');
-            document.getElementById('localStorageResult').textContent = 
-                `localStorage 中的值: ${value || '未找到'}`;
-        }
-
-        function getSessionStorage() {
-            const value = sessionStorage.getItem('testKey');
-            document.getElementById('sessionStorageResult').textContent = 
-                `sessionStorage 中的值: ${value || '未找到'}`;
-        }
-    </script>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="open1">打开空白页 并赋值 baidu</button>
+    <button id="open2">打开空白页 并赋值 applink</button>
+    <a
+      href="scbeasy://payments/bill/id/a6601f53-05cb-49a9-a5f5-afa6f9570d4f"
+      target="_blank"
+      >link</a
+    >
+  </body>
+  <script>
+    document.getElementById("open1").addEventListener("click", () => {
+      let url = "https://www.baidu.com";
+      let url2 =
+        "scbeasy://payments/bill/id/a6601f53-05cb-49a9-a5f5-afa6f9570d4f";
+      let newWindow = window.open("", "_blank");
+      setTimeout(() => {
+        newWindow.location.href = url;
+      }, 2000);
+    });
+    document.getElementById("open2").addEventListener("click", () => {
+      let url = "https://www.baidu.com";
+      let url2 =
+        "scbeasy://payments/bill/id/a6601f53-05cb-49a9-a5f5-afa6f9570d4f";
+      let newWindow = window.open("", "_blank");
+      setTimeout(() => {
+        newWindow.location.href = url2;
+      }, 2000);
+    });
+  </script>
 </html>
