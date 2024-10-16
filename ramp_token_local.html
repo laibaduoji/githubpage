@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ramp_get_token</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      .flex {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #app {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .urlbox {
+        width: 600px;
+        word-break: break-all;
+      }
+    </style>
+    <link rel="stylesheet" href="./libs/element-ui/index.css" />
+  </head>
+  <body>
+    <div id="app">
+      <el-form
+        v-if="!isLogin"
+        ref="form"
+        :model="form"
+        label-width="180px"
+        style="width: 600px"
+        @submit.native.prevent
+      >
+        <el-form-item label="密码">
+          <el-input
+            v-model="form.secretKey"
+            @keyup.enter.native="onLogin"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="onLogin">Login</el-button>
+        </el-form-item>
+      </el-form>
+      <el-form
+        v-else
+        ref="form"
+        :model="form"
+        label-width="180px"
+        style="width: 600px"
+      >
+        <el-form-item label="当前环境">
+          <el-radio-group v-model="currentEnv">
+            <el-radio
+              ref="radio_ref"
+              v-for="(item,key,index) in envMapApiUrl"
+              :key="key"
+              :label="key"
+              >{{key}}</el-radio
+            >
+          </el-radio-group>
+
+          <el-radio-group v-model="isLocal">
+            <el-radio ref="radio_ref1" :label="true" :key="1"
+              >本地环境</el-radio
+            >
+            <el-radio ref="radio_ref2" :label="false" :key="2"
+              >服务器环境</el-radio
+            >
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="mer_app_id">
+          <el-input v-model="form.mer_app_id" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="mer_app_secret">
+          <el-input v-model="form.mer_app_secret" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="Email">
+          <div class="flex">
+            <el-input v-model="form.email"></el-input>
+            <el-button type="primary" @click="createRandomEmail"
+              >Random Email</el-button
+            >
+          </div>
+        </el-form-item>
+        <el-form-item v-if="isLocal" label="Origin">
+          <el-input v-model="form.origin"></el-input>
+        </el-form-item>
+        <el-form-item v-else label="Server">
+          <el-input readonly v-model="ServerOrigin"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onGetToken">GetToken</el-button>
+          <el-button type="primary" @click="onLogout">Logout</el-button>
+        </el-form-item>
+        <el-form-item v-if="error">
+          <span style="color: red">{{ errorMsg }}</span>
+        </el-form-item>
+      </el-form>
+      <div class="urlbox" style="width: 600px">{{url}}</div>
+      <div>
+        <el-button @click="open">Open</el-button>
+      </div>
+    </div>
+  </body>
+  <script src="./libs/vue/vue.js"></script>
+  <script src="./libs/element-ui/index.js"></script>
+  <script src="./libs/axios/axios.js"></script>
+  <script src="./libs/crypto-js/crypto-js.js"></script>
+  <script>
+    // 加密
+    const encryptedData =
+      "U2FsdGVkX19yiKzGv9rJDT9HcvqQ/Ec0Keh1phUyQd43+KmXZb2RzAArslKZTEQsg+LEVtz6xNe2AbURzIszAgg8AtgkGRLUiQHHhXJ8x7nwg0GG7d+r/wdaCV7TnbMZ6/4VAu7bifv0fvOmQSO+Jseuk1fn2147eRNbvkwazcjCoR976jg12yQ1u/vP9AjYKzF4c4GCxXg3DsXm/aeEZM9sB30Pw68M4zSM6mbeqkfOuLkr/KDEzzYgLznnxf3237NcJ6ARkiMd09SV8aViph+bbJLCZ1Dp7uatW+5aKpFVh8wi8J14GWWLWcpuEcZyjg2MBxn13TD6LPIOhGhxG3Fieh1lKtARGaEtDyinCRoAch9iJOneq0xgfNy4Z/6P7HSBngWXmCpqdNiB0TzY47643EEJ2lDY5tC/mv6vmdiEiLv++fJgsfBzR1st0/w66ANoXX8Vn+kEKSfkAL5GIUb+dJCZ/cf5qL+g7NI5YzxkuTPkfzeWCueKZ04jYDa7YFqUPzREbPTYEShUfZ4rd1JKbdN1AtrJzDX7y9kQdRCkOpzBXTMg+p/4lVMER64jVVooFxCHKdnpjM27uwvJi971CVI/zTgFTDh2dk2alZXHHn/AvoBhLXWlEFxmUNNIoHaKNUf/y/qpYDrs3hqIQfo7m+BJlHeCoZunGJsLCGBIHRhxn9SWjQ1lnTLrkM0mWCOQ48jVNFm9s+bQwBM0d4b0F9lLAu4sqegI0poGawCs0lNpdyh53E7k5wFhaAP3hKuD3lRilHmpYlw3Nz80P6NnPCFkHafSVwwnZEauJd9676rihdhfoyd9Gz3+chhq";
+  </script>
+  <script>
+    const vm = new Vue({
+      el: "#app",
+      data() {
+        return {
+          url: "",
+          isLogin: false,
+          envMapApiUrl: {},
+          envMapOriginUrl: {},
+          form: {
+            secretKey: "",
+          },
+          currentEnv: "test",
+          isLocal: true,
+          error: false,
+          errorMsg: "",
+        };
+      },
+
+      computed: {
+        currentUrl() {
+          return this.envMapApiUrl[this.currentEnv];
+        },
+        ServerOrigin() {
+          return this.envMapOriginUrl[this.currentEnv];
+        },
+        baseUrl() {
+          return this.isLocal ? this.form.origin : this.ServerOrigin;
+        },
+      },
+      mounted() {},
+      watch: {
+        isLogin(val) {
+          if (val) {
+            this.$nextTick(() => {
+              this.removeRadioAriaHiddenAttr();
+              this.createRandomEmail();
+            });
+          }
+        },
+      },
+      created() {
+        this.tryLogin();
+      },
+      methods: {
+        onLogout() {
+          sessionStorage.removeItem("decryptedData");
+          this.isLogin = false;
+        },
+        tryLogin() {
+          const decryptedData = sessionStorage.getItem("decryptedData");
+          if (decryptedData) {
+            try {
+              // 登录成功;
+              const data = JSON.parse(decryptedData);
+              console.log("Decrypted:", data);
+              this.isLogin = true;
+              this.envMapApiUrl = data.envMapApiUrl;
+              this.envMapOriginUrl = data.envMapOriginUrl;
+              this.form = data.form;
+            } catch (e) {
+              this.isLogin = false;
+            }
+          } else {
+            this.isLogin = false;
+          }
+        },
+        onLogin() {
+          const decryptedData = this.decrypt(
+            encryptedData,
+            this.form.secretKey
+          );
+          // const decryptedData = decrypt(encryptedData, secretKey);
+          if (decryptedData) {
+            // 登录成功;
+            const data = JSON.parse(decryptedData);
+            console.log("Decrypted:", data);
+            this.isLogin = true;
+            this.envMapApiUrl = data.envMapApiUrl;
+            this.envMapOriginUrl = data.envMapOriginUrl;
+            this.form = data.form;
+            sessionStorage.setItem("decryptedData", decryptedData);
+          }
+        },
+
+        // 解密函数
+        decrypt(ciphertext, secret) {
+          try {
+            const bytes = CryptoJS.AES.decrypt(ciphertext, secret);
+            const originalData = bytes.toString(CryptoJS.enc.Utf8);
+            return originalData;
+          } catch (e) {
+            console.error("解密失败:", e);
+            return "";
+          }
+        },
+        createRandomEmail() {
+          this.form.email =
+            "Ach_Test_" +
+            Math.random().toString(36).slice(-8) +
+            "@alchemytech.io";
+        },
+        removeRadioAriaHiddenAttr() {
+          // 移除 input[type="radio"] 元素的 aria-hidden 属性; 原因是 浏览器控制台报错
+
+          this.$refs.radio_ref.forEach((_ref) => {
+            // 获取 radio_ref 下的 input[type="radio"] 元素
+            const radioInput = _ref.$el.querySelector('input[type="radio"]');
+            if (radioInput) {
+              radioInput.removeAttribute("aria-hidden");
+            }
+          });
+
+          this.$refs.radio_ref1.$el
+            .querySelector('input[type="radio"]')
+            .removeAttribute("aria-hidden");
+          this.$refs.radio_ref2.$el
+            .querySelector('input[type="radio"]')
+            .removeAttribute("aria-hidden");
+        },
+        async onGetToken() {
+          const body = {
+            email: this.form.email,
+          };
+          const timestamp = Math.floor(Date.now() / 1000) * 1000;
+          try {
+            const response = await axios.post(
+              `${this.currentUrl}/merchant/getToken`,
+              body,
+              {
+                headers: this.getHeaders(
+                  this.form.mer_app_id,
+                  this.form.mer_app_secret,
+                  timestamp
+                ),
+                // Axios 自动将对象转换为 JSON，因此不需要使用 JSON.stringify
+              }
+            );
+            const accessToken = encodeURIComponent(
+              response.data.data.accessToken
+            );
+            console.log(accessToken);
+            const url = `${this.baseUrl}?token=${accessToken}&orderNo=123456789`;
+            this.url = url;
+            console.log(url);
+            // window.open(url, "_blank");
+            // return accessToken;
+          } catch (error) {
+            this.error = true;
+            this.errorMsg = error.message;
+
+            console.error("Error fetching token:", error);
+            throw error; // 处理错误
+          }
+        },
+        open() {
+          window.open(this.url, "_blank");
+        },
+        getHeaders(app_id, app_secret, timestamp) {
+          return {
+            "Content-Type": "application/json;charset=UTF-8",
+            appId: app_id,
+            timestamp: timestamp + "",
+            sign: this.get_mer_sign(app_id, app_secret, timestamp),
+          };
+        },
+        get_mer_sign(app_id, app_secret, timestamp) {
+          return this.getSha1Hash(app_id + app_secret + timestamp);
+        },
+        getSha1Hash(data) {
+          const hash = CryptoJS.SHA1(data).toString(CryptoJS.enc.Hex);
+          return hash;
+        },
+      },
+    });
+  </script>
+</html>
