@@ -34,11 +34,10 @@
     <div id="map"></div>
   </body>
   <script>
-    var map = L.map("map").setView([39.9206, 116.4604], 3);
+    var map = L.map("map").setView([39.9206, 116.4604], 16);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 100,
-      attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: "&copy;",
     }).addTo(map);
     console.log(L);
     const position = [39.9206, 116.4604];
@@ -69,7 +68,7 @@
     ];
 
     // 在整个地图范围内 随机生成 1000个marker
-    for (let i = 0; i < 98; i++) {
+    for (let i = 0; i < 8; i++) {
       // 生成随机坐标
       var lat = Math.random() * 180 - 90; // -90 到 90
       var lng = Math.random() * 360 - 180; // -180 到 180

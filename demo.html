@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+  <script src="./achramp-risk-sdk.min.js"></script>
+  <script>
+    (async () => {
+      try {
+        ACHRampRiskSDK.getChannelCookie()
+          .then((获取channelCookie) => {
+            console.log("获取channelCookie:", 获取channelCookie);
+          })
+          .catch((error) => {
+            console.error("获取获取channelCookie 失败:", error);
+          });
+
+        ACHRampRiskSDK.getCookie()
+          .then((cookie) => {
+            console.log("Cookie:", cookie);
+          })
+          .catch((error) => {
+            console.error("获取 Cookie 失败:", error);
+          });
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    })();
+  </script>
+</html>

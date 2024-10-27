@@ -6,10 +6,11 @@
     <title>Document</title>
     <style>
       body {
-        padding: 100px;
+        padding: 10px;
       }
     </style>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <script src="./libs/tonweb.js"></script>
   </head>
   <body>
     <div id="ton-connect"></div>
@@ -20,26 +21,62 @@
       buttonRootId: "ton-connect",
     });
 
-    tonConnectUI.uiOptions = {
-      // actionsConfiguration: {
-      // returnStrategy: "none",
-      twaReturnUrl:
-        "https://t.me/capybara_nation_bot/start?startapp=ref_5847529284",
-      // },
-    };
-
-    console.log(tonConnectUI);
-    console.log(tonConnectUI.uiOptions);
     async function connectToWallet() {
       const connectedWallet = await tonConnectUI.connectWallet();
       // Do something with connectedWallet if needed
       console.log(connectedWallet);
       console.log(tonConnectUI);
-    }
 
+      const tonweb = new TonWeb();
+      console.log(tonweb);
+
+      async function publicKeyToTonAddress(publicKey) {
+        const tonweb = new TonWeb();
+        console.log(tonweb);
+        // const address = tonweb.utils.addressFromPublicKey(publicKey);
+        // return address.toString();
+      }
+
+      // 示例公钥（请用真实公钥替换）
+      const publicKey = connectedWallet.account.publicKey;
+      publicKeyToTonAddress(publicKey).then(console.log);
+    }
     // Call the function
     connectToWallet().catch((error) => {
       console.error("Error connecting to wallet:", error);
     });
+
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
   </script>
 </html>

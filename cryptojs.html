@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  </head>
+  <body></body>
+  <script>
+    // 要哈希的字符串
+    const message = "Hello World";
+
+    // 计算SHA-256哈希
+    const hash = CryptoJS.SHA256(message);
+
+    // 将哈希值转换为Base64字符串
+    const base64Hash = CryptoJS.enc.Base64.stringify(hash);
+
+    // 生成完整的integrity字符串
+    const integrity = `sha256-${base64Hash}`;
+
+    console.log("Integrity:", integrity);
+  </script>
+</html>
