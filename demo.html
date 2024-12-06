@@ -9,26 +9,30 @@
   </head>
   <body>
     demo
+    <a href="https://www.baidu.com">baidu</a>
   </body>
   <script>
     new VConsole();
   </script>
   <script>
     console.log(window.Telegram.WebApp);
-    console.log(`%c${'===='}`,'font-size:30px;color:#aa5ff0');
+    console.log(`%c${"===="}`, "font-size:30px;color:#aa5ff0");
     console.log(window.Telegram.WebApp.BackButton);
+    window.Telegram.WebApp.BackButton.onClick = function () {
+      window.history.go(-1);
+    };
 
-    setTimeout(()=>{
-      window.Telegram.WebApp.BackButton.hide()
-    },3000);
-    setTimeout(()=>{
-      window.Telegram.WebApp.BackButton.show()
-    },6000);
-    setTimeout(()=>{
-      window.Telegram.WebApp.BackButton.hide()
-    },9000);  
-    setTimeout(()=>{
-      window.Telegram.WebApp.BackButton.show()
-    },12000);
+    setTimeout(() => {
+      window.Telegram.WebApp.BackButton.hide();
+    }, 3000);
+    setTimeout(() => {
+      window.Telegram.WebApp.BackButton.show();
+    }, 6000);
+    setTimeout(() => {
+      window.Telegram.WebApp.BackButton.hide();
+    }, 9000);
+    setTimeout(() => {
+      window.Telegram.WebApp.BackButton.show();
+    }, 12000);
   </script>
 </html>
