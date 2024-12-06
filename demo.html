@@ -4,30 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
   </head>
   <body></body>
-  <script src="./achramp-risk-sdk.min.js"></script>
   <script>
-    (async () => {
-      try {
-        ACHRampRiskSDK.getChannelCookie()
-          .then((获取channelCookie) => {
-            console.log("获取channelCookie:", 获取channelCookie);
-          })
-          .catch((error) => {
-            console.error("获取获取channelCookie 失败:", error);
-          });
-
-        ACHRampRiskSDK.getCookie()
-          .then((cookie) => {
-            console.log("Cookie:", cookie);
-          })
-          .catch((error) => {
-            console.error("获取 Cookie 失败:", error);
-          });
-      } catch (error) {
-        console.error("Error12:", error);
-      }
-    })();
+    new VConsole();
+  </script>
+  <script>
+    console.log(window.Telegram.WebApp);
   </script>
 </html>
