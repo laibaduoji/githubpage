@@ -8,7 +8,7 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
   </head>
   <body>
-    demo 12
+    demo 123
     <a href="https://www.baidu.com">baidu12</a>
   </body>
   <script>
@@ -16,16 +16,10 @@
   </script>
   <script>
     console.log(window.Telegram.WebApp);
-    console.log(`%c${"===="}`, "font-size:30px;color:#aa5ff0");
-    console.log(window.Telegram.WebApp.BackButton);
-
     window.Telegram.WebApp.onEvent("backButtonClicked", () => {
-      window.history.go(-1);
+      alert(123);
     });
-
     window.Telegram.WebApp.BackButton.show();
-
-    window.Telegram.WebApp.BottomButton.show();
-    window.Telegram.WebApp.BottomButton.enable();
+    console.log(window.Telegram.WebApp.BackButton.onClick);
   </script>
 </html>
