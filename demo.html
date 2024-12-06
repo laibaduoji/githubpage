@@ -7,11 +7,28 @@
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
   </head>
-  <body></body>
+  <body>
+    demo
+  </body>
   <script>
     new VConsole();
   </script>
   <script>
     console.log(window.Telegram.WebApp);
+    console.log(`%c${'===='}`,'font-size:30px;color:#aa5ff0');
+    console.log(window.Telegram.WebApp.BackButton);
+
+    setTimeout(()=>{
+      window.Telegram.WebApp.BackButton.hide()
+    },3000);
+    setTimeout(()=>{
+      window.Telegram.WebApp.BackButton.show()
+    },6000);
+    setTimeout(()=>{
+      window.Telegram.WebApp.BackButton.hide()
+    },9000);  
+    setTimeout(()=>{
+      window.Telegram.WebApp.BackButton.show()
+    },12000);
   </script>
 </html>
