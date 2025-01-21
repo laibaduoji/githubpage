@@ -58,6 +58,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
 
         <el-button @click="a_self"> 3. _self</el-button>
         <el-link>{{link}}</el-link>
+        <el-link>{{link1}}</el-link>
       </div>
       <div>
         <a href="https://t.me/DurgerKingBot/menu">menu</a>
@@ -148,6 +149,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
       data() {
         return {
           link: "",
+          link1: "",
           env: env,
         };
       },
@@ -166,6 +168,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             console.log(model);
             if (code === "0") {
               this.link = model?.webUrl;
+              this.link1 = model?.webUrl;
             }
           });
         },
