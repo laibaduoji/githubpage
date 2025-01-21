@@ -4,20 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
+    <script src="./libs/telegram-web-app.js"></script>
   </head>
-  <body>
-    <div style="padding: 20px">
-      <a
-        href="https://ramp-pre.alchemytech.cc/cashier-desk.html?token=eyJhbGciOiJIUzI1NiJ9.eyJwYXlsb2FkIjoie1wib3JkZXJOb1wiOlwiMTMxNjMwMTA1OTkxMjcyMDM4NFwiLFwiYXBwSWRcIjpcIjJyUXc5NTBUcTc4MmNVMDNcIixcInVzZXJJZFwiOjE0MzUzMjUsXCJjdXJyZW5jeVwiOlwiVVNEXCIsXCJwYXlXYXlDb2RlXCI6XCI1MDFcIn0iLCJpc3MiOiJhbGNoZW15LXBheS1vbi9vZmYtcmFtcCIsImV4cCI6MTczMzkwMTIwOCwiaWF0IjoxNzMzOTAxMDI4fQ.R5U4QRunJzHGY-iLFZgetu-2stWelYTbEy4wHltx0gg&payWayCode=501&channelCode=AP10001"
-        >点击进入applepay11111111</a
-      >
-    </div>
-    <div style="padding: 20px">
-      <a href="https://laibaduoji.github.io/githubpage/ton.html?a=12345"
-        >backdemo 11111</a
-      >
-    </div>
-  </body>
+  <body></body>
+  <script>
+    let telegram = window?.Telegram?.WebApp;
+    if (
+      telegram &&
+      (telegram?.initData || telegram?.initDataUnsafe?.query_id)
+    ) {
+      alert("TG");
+    } else {
+      alert("Not TG");
+    }
+  </script>
 </html>
