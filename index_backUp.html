@@ -17,6 +17,11 @@
       .active {
         color: #409eff;
       }
+
+      #qrcode {
+        width: 300px;
+        height: 300px;
+      }
     </style>
   </head>
   <body>
@@ -72,11 +77,15 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
       <div>
         <a href="https://t.me/DurgerKingBot/menu/123456">menu/123456</a>
       </div>
+
+      <canvas id="qrcode"></canvas>
     </div>
   </body>
   <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
   <script src="https://unpkg.com/element-ui/lib/index.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
   <script>
     new VConsole();
     console.log(window);
@@ -170,6 +179,19 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             if (code === "0") {
               this.link = model?.webUrl;
               this.link1 = `http://192.168.110.77:8081?orderNum=${model.orderNo}`;
+              let _asdf = this.link1;
+              // 生成二维码
+              QRCode.toCanvas(
+                document.getElementById("qrcode"),
+                _asdf,
+                function (error) {
+                  if (error) {
+                    console.error(error);
+                  } else {
+                    console.log("二维码生成成功！");
+                  }
+                }
+              );
             }
           });
         },
