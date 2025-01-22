@@ -13,11 +13,11 @@
       telegram &&
       (telegram?.initData || telegram?.initDataUnsafe?.query_id)
     ) {
-      alert("TG");
-      document.body.innerHTML = window.location.href;
+      // tg 加在js
     } else {
-      alert("Not TG");
-      document.body.innerHTML = window.location.href;
+      window.TelegramWebviewProxy = null;
+      window.Telegram = null;
+      window.TelegramWebviewProxyProto = null;
     }
   </script>
 </html>

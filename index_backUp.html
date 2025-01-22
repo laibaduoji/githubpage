@@ -18,7 +18,7 @@
         color: #409eff;
       }
 
-      #qrcode {
+      canvas {
         width: 300px;
         height: 300px;
       }
@@ -77,8 +77,16 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
       <div>
         <a href="https://t.me/DurgerKingBot/menu/123456">menu/123456</a>
       </div>
-
-      <canvas id="qrcode"></canvas>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+        "
+      >
+        <canvas id="qrcode"></canvas>
+        <canvas id="qrcode1"></canvas>
+      </div>
     </div>
   </body>
   <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
@@ -179,11 +187,21 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             if (code === "0") {
               this.link = model?.webUrl;
               this.link1 = `http://192.168.110.77:8081?orderNum=${model.orderNo}`;
-              let _asdf = this.link1;
               // 生成二维码
               QRCode.toCanvas(
                 document.getElementById("qrcode"),
-                _asdf,
+                this.link1,
+                function (error) {
+                  if (error) {
+                    console.error(error);
+                  } else {
+                    console.log("二维码生成成功！");
+                  }
+                }
+              );
+              QRCode.toCanvas(
+                document.getElementById("qrcode1"),
+                this.link,
                 function (error) {
                   if (error) {
                     console.error(error);
