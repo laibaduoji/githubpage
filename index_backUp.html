@@ -62,9 +62,9 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
         </el-link>
 
         <el-button @click="a_self"> 3. _self</el-button>
-        <el-link>{{link}}</el-link>
+        <el-link :href="link">{{link}}</el-link>
         <div></div>
-        <el-link>{{link1}}</el-link>
+        <el-link :href="link1">{{link1}}</el-link>
       </div>
       <div>
         <a href="https://t.me/DurgerKingBot/menu">menu</a>
@@ -186,7 +186,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             console.log(model);
             if (code === "0") {
               this.link = model?.webUrl;
-              this.link1 = `http://192.168.110.77:8081?orderNum=${model.orderNo}`;
+              this.link1 = `http://192.168.5.137:8081?orderNum=${model.orderNo}`;
               // 生成二维码
               QRCode.toCanvas(
                 document.getElementById("qrcode"),
