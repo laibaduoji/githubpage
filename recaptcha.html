@@ -5,16 +5,22 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>reCAPTCHA demo: Simple page</title>
 		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+		<script>
+			function onSubmit(token) {
+				console.log(`%c${"token"}`, "font-size:30px;color:#aa5ff0");
+				console.log(token);
+				document.getElementById("demo-form").submit();
+			}
+		</script>
 	</head>
 	<body>
-		<form action="https://www.baidu.com/" method="POST">
-			<div class="g-recaptcha" data-sitekey="6LdGbs0qAAAAALysfVauGtCkueJqsXVbBivvmMov"></div>
+		<form id="demo-form" action="?" method="POST">
+			<button class="g-recaptcha" data-sitekey="6LfqdM0qAAAAACYBI0Kf_4cCKeit_6n0Oi6awLFv" data-callback="onSubmit">Submit123</button>
 			<br />
-			<input type="submit" value="Submit" />
 		</form>
 	</body>
 	<script>
-		const key_custom = "6LdGbs0qAAAAALysfVauGtCkueJqsXVbBivvmMov";
-		const key_server = "6LdGbs0qAAAAABEb0nGr9oEsCcdJkzmFD0LW8PT1";
+		const key_custom = "6LfqdM0qAAAAACYBI0Kf_4cCKeit_6n0Oi6awLFv";
+		const key_server = "6LfqdM0qAAAAAPZBxets7kI1E2jJGE219uHQNbBc";
 	</script>
 </html>
