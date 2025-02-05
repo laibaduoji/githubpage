@@ -1,26 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>reCAPTCHA demo: Simple page</title>
-		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 		<script>
 			function onSubmit(token) {
-				console.log(`%c${"token"}`, "font-size:30px;color:#aa5ff0");
-				console.log(token);
-				document.getElementById("demo-form").submit();
+				alert("thanks " + document.getElementById("field").value);
+			}
+
+			function validate(event) {
+				event.preventDefault();
+				if (!document.getElementById("field").value) {
+					alert("You must add text to the required field");
+				} else {
+					grecaptcha.execute();
+				}
+			}
+
+			function onload() {
+				var element = document.getElementById("submit");
+				element.onclick = validate;
 			}
 		</script>
+		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	</head>
 	<body>
-		<form id="demo-form" action="?" method="POST">
-			<button class="g-recaptcha" data-sitekey="6LfqdM0qAAAAACYBI0Kf_4cCKeit_6n0Oi6awLFv" data-callback="onSubmit">Submit123</button>
-			<br />
+		<form>
+			Name: (required) <input id="field" name="field" />
+			<div id="recaptcha" class="g-recaptcha" data-sitekey="6LfqdM0qAAAAACYBI0Kf_4cCKeit_6n0Oi6awLFv" data-callback="onSubmit" data-size="invisible"></div>
+			<button id="submit">submit</button>
 		</form>
+		<script>
+			onload();
+		</script>
+		<script>
+			const key_custom = "6LfqdM0qAAAAACYBI0Kf_4cCKeit_6n0Oi6awLFv";
+			const key_server = "6LfqdM0qAAAAAPZBxets7kI1E2jJGE219uHQNbBc";
+		</script>
 	</body>
-	<script>
-		const key_custom = "6LfqdM0qAAAAACYBI0Kf_4cCKeit_6n0Oi6awLFv";
-		const key_server = "6LfqdM0qAAAAAPZBxets7kI1E2jJGE219uHQNbBc";
-	</script>
 </html>
