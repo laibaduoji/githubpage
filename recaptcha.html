@@ -7,6 +7,7 @@
 			grecaptcha.ready(function () {
 				grecaptcha.execute("6LfimM0qAAAAACtFRWIf1Ll0Fnb57yPQV9uKUFSh", { action: "submit" }).then(function (token) {
 					console.log(token);
+
 					var myHeaders = new Headers();
 					myHeaders.append("User-Agent", "Apifox/1.0.0 (https://apifox.com)");
 
