@@ -4,20 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="./libs/telegram-web-app.js"></script>
+    <script
+      id="risk-js"
+      async
+      src="https://risk.sandbox.checkout.com/cdn/risk/1.4/risk.js"
+      integrity="sha384-ZSxqmpAFmoazrVM8jZUo/UID9JuAF37l6UXDXrXJOI4UABnFtMNSCnpc26T0Ar+0"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body></body>
   <script>
-    let telegram = window?.Telegram?.WebApp;
-    if (
-      telegram &&
-      (telegram?.initData || telegram?.initDataUnsafe?.query_id)
-    ) {
-      // tg 加在js
-    } else {
-      window.TelegramWebviewProxy = null;
-      window.Telegram = null;
-      window.TelegramWebviewProxyProto = null;
-    }
+    const script = document.getElementById("risk-js");
+
+    script.addEventListener("load", async () => {
+      console.log(`%c${"load"}`, "font-size:30px;color:#aa5ff0");
+      console.log(window.Risk);
+      const risk = window.Risk.init("pk_sbox_srkhzyxmotpo6vnfhqixvs66kyt");
+
+      try {
+        // use Risk.js here
+        const deviceSessionId = await risk.publishRiskData(); // dsid_XXXX
+
+        console.log({ deviceSessionId });
+      } catch (e) {
+        console.log(`%c${"e"}`, "font-size:30px;color:#aa5ff0");
+        console.log(e);
+      }
+    });
   </script>
 </html>
