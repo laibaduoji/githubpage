@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script
-      id="risk-js"
       async
+      id="risk-js"
       src="https://risk.sandbox.checkout.com/cdn/risk/1.4/risk.js"
       integrity="sha384-ZSxqmpAFmoazrVM8jZUo/UID9JuAF37l6UXDXrXJOI4UABnFtMNSCnpc26T0Ar+0"
       crossorigin="anonymous"
@@ -16,16 +16,25 @@
   <script>
     const script = document.getElementById("risk-js");
 
+    window.addEventListener("message", function (event) {
+      console.log("event");
+      console.log(event);
+      /* if (event.origin !== 'https://expected-origin.com') {
+    return; // 忽略来自不安全来源的消息
+  }
+  // 处理消息*/
+    });
+
     script.addEventListener("load", async () => {
-      console.log(`%c${"load"}`, "font-size:30px;color:#aa5ff0");
       console.log(window.Risk);
       const risk = window.Risk.init("pk_sbox_srkhzyxmotpo6vnfhqixvs66kyt");
 
       try {
+        console.log(`%c${"risk"}`, "font-size:30px;color:#aa5ff0");
         // use Risk.js here
         const deviceSessionId = await risk.publishRiskData(); // dsid_XXXX
 
-        console.log({ deviceSessionId });
+        console.log({ deviceSessionId: deviceSessionId });
       } catch (e) {
         console.log(`%c${"e"}`, "font-size:30px;color:#aa5ff0");
         console.log(e);
