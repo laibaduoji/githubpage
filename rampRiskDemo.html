@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ACHRampRiskSDK Test</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="data:," />
+    <script src="./achramp-risk-sdk.min.js"></script>
+  </head>
+
+  <body>
+    <h1>ACHRampRiskSDK Test</h1>
+    <p>Click the button below to trigger device identification.</p>
+    <button onclick="getChannelCookieFun()" id="risk-js-button">
+      getChannelCookie
+    </button>
+    <p id="output"></p>
+    <button onclick="getCookieFun()" id="risk-js-button">getCookie</button>
+    <p id="output1"></p>
+    <script>
+      function getChannelCookieFun() {
+        ACHRampRiskSDK.getChannelCookie().then((channelCookie) => {
+          const output = document.getElementById("output");
+          output.innerHTML += `🔥 channelCookie: <code>${channelCookie}</code> `;
+        });
+      }
+
+      function getCookieFun() {
+        ACHRampRiskSDK.getCookie().then((Cookie) => {
+          const output = document.getElementById("output1");
+          output.innerHTML += `🔥 Cookie: <code>${Cookie}</code> `;
+        });
+      }
+    </script>
+  </body>
+</html>
