@@ -12,7 +12,7 @@
   </head>
   <body>
     <div id="app">
-      <div>4</div>
+      <div>5</div>
       <div>{{msg}}</div>
     </div>
   </body>
@@ -27,7 +27,7 @@
       async mounted() {
         try {
           console.log(window.bitkeep);
-          const accounts = await window.bitkeep.request({ method: "eth_requestAccounts" });
+          const accounts = await window.bitkeep.ethereum.request({ method: "eth_requestAccounts" });
           this.msg = accounts;
         } catch (e) {
           console.log(e);
