@@ -12,8 +12,9 @@
   </head>
   <body>
     <div id="app">
-      <div>5</div>
-      <div>{{msg}}</div>
+      <div>6</div>
+      <div>address: {{address}}</div>
+      <div>chainId: {{chainId}}</div>
     </div>
   </body>
   <script>
@@ -21,14 +22,17 @@
       el: "#app",
       data() {
         return {
-          msg: "message",
+          address: null,
+          chainId: null,
         };
       },
       async mounted() {
         try {
           console.log(window.bitkeep);
           const accounts = await window.bitkeep.ethereum.request({ method: "eth_requestAccounts" });
-          this.msg = accounts;
+          const chainId = await window.bitkeep.ethereum.request({ method: "eth_chainId" });
+          this.address = accounts;
+          this.chainId = chainId;
         } catch (e) {
           console.log(e);
         }
