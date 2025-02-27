@@ -17,6 +17,16 @@
           msg: "message",
         };
       },
+      async mounted() {
+        console.log(`%c${"123"}`, "font-size:30px;color:#aa5ff0");
+        try {
+          const accounts = await window.bitkeep.provider.request({ method: "eth_requestAccounts" });
+          this.msg = accounts;
+        } catch (e) {
+          console.log(`%c${"e"}`, "font-size:30px;color:#aa5ff0");
+          console.log(e);
+        }
+      },
     });
   </script>
 </html>
