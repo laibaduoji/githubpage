@@ -12,7 +12,7 @@
   </head>
   <body>
     <div id="app">
-      <div>3</div>
+      <div>4</div>
       <div>{{msg}}</div>
     </div>
   </body>
@@ -26,6 +26,7 @@
       },
       async mounted() {
         try {
+          console.log(window.bitkeep);
           const accounts = await window.bitkeep.request({ method: "eth_requestAccounts" });
           this.msg = accounts;
         } catch (e) {
