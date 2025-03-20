@@ -34,6 +34,9 @@
         <el-button @click="a_self2">
           https://test-crypto-payment.alchemypay.org/connectWallet
         </el-button>
+        <el-button @click="a_self3">
+          https://test-crypto-payment.alchemypay.org/connectWalletTon
+        </el-button>
 
         <el-button @click="getWebUrl">2. getWebUrl</el-button>
         <el-button :class="{'active':env=='dev'}" @click="setEnv('dev')"
@@ -236,6 +239,12 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             "https://test-crypto-payment.alchemypay.org/connectWallet"
           );
         },
+        a_self3() {
+          window.location.replace(
+            "https://test-crypto-payment.alchemypay.org/connectWalletTon"
+          );
+        },
+
         setEnv(type) {
           this.env = type;
           window.env = type;
