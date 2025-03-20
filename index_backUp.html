@@ -27,6 +27,9 @@
   <body>
     <div id="app">
       <div>
+        <button @click="a_self1">
+          https://laibaduoji.github.io/vue3-finally/dist/#/
+        </button>
         <el-button @click="getWebUrl">2. getWebUrl</el-button>
         <el-button :class="{'active':env=='dev'}" @click="setEnv('dev')"
           >1.dev</el-button
@@ -215,6 +218,10 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
         },
         a_self() {
           window.location.href = this.link;
+        },
+        a_self1() {
+          window.location.href =
+            "https://laibaduoji.github.io/vue3-finally/dist/#/";
         },
         setEnv(type) {
           this.env = type;
