@@ -220,8 +220,11 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           window.location.href = this.link;
         },
         a_self1() {
-          window.location.href =
-            "https://laibaduoji.github.io/vue3-finally/dist/#/";
+          window.location.replace(
+            "https://laibaduoji.github.io/vue3-finally/dist/#/"
+          );
+          // window.location.href =
+          //   "https://laibaduoji.github.io/vue3-finally/dist/#/";
         },
         setEnv(type) {
           this.env = type;
