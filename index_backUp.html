@@ -27,9 +27,14 @@
   <body>
     <div id="app">
       <div>
-        <button @click="a_self1">
+        <el-button @click="a_self1">
           https://laibaduoji.github.io/vue3-finally/dist/#/
-        </button>
+        </el-button>
+
+        <el-button @click="a_self2">
+          https://test-crypto-payment.alchemypay.org/connectWallet
+        </el-button>
+
         <el-button @click="getWebUrl">2. getWebUrl</el-button>
         <el-button :class="{'active':env=='dev'}" @click="setEnv('dev')"
           >1.dev</el-button
@@ -225,6 +230,11 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           );
           // window.location.href =
           //   "https://laibaduoji.github.io/vue3-finally/dist/#/";
+        },
+        a_self2() {
+          window.location.replace(
+            "https://test-crypto-payment.alchemypay.org/connectWallet"
+          );
         },
         setEnv(type) {
           this.env = type;
