@@ -144,7 +144,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           // merchantOrderNo: "113131362115942171225",
           merchantOrderNo: "113131362115942" + generateRandomNumber(6),
           userId: "505884978@qq.com",
-          orderAmount: "300",
+          orderAmount: "310",
           payCurrency: "USD",
           redirectURL: "https://alchemypay.org",
           callbackURL: "https://alchemypay.org",
@@ -197,7 +197,8 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             console.log(model);
             if (code === "0") {
               this.link = model?.webUrl;
-              this.link1 = `http://192.168.5.137:8081?orderNum=${model.orderNo}`;
+              // this.link = model?.webUrl;
+              this.link1 = `https://test-crypto-payment.alchemypay.org?orderNum=${model.orderNo}`;
               // 生成二维码
               QRCode.toCanvas(
                 document.getElementById("qrcode"),
