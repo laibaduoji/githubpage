@@ -79,4 +79,45 @@
     //
     //
   </script>
+  <script>
+    // const recipientAddress = Address.parse(toAddress);
+    // const usdtContractAddress = Address.parse(contractAddress);
+    // console.log(usdtContractAddress, 'usdtContractAddress')
+    // const amount1 = toNano(amount); // Amount in minimal units (e.g., 1 TON)
+    // const gasFee = toNano('0.05'); // Gas fee (0.1 TON)
+    // const payload = beginCell()
+    //   .storeUint(0xf8a7ea5, 32) // op transfer
+    //   .storeUint(0, 64) // queryId
+    //   .storeCoins(amount1) // deposit_amount
+    //   .storeAddress(recipientAddress) // receiver address
+    //   .storeAddress(recipientAddress) // response_address - address to receive extra GD fee
+    //   .storeUint(0, 1)
+    //   .storeCoins(gasFee) // forward_ton_amount
+    //   .storeUint(0, 1)                           // forward_payload:(Either Cell ^Cell)
+    //   .endCell();
+    // const payload = beginCell()
+    //   .storeUint(0xf8a7ea5, 32) // op transfer
+    //   .storeUint(0, 64) // queryId
+    //   .storeCoins(toNano(amount)) // deposit_amount
+    //   .storeAddress(
+    //     Address.parse(toAddress),
+    //   ) // receiver address
+    //   .storeAddress(Address.parse(toAddress)) //response_adress - address nhận phí GD thừa
+    //   .storeMaybeRef(null) // custom_payload
+    //   .storeCoins(toNano("0.05")) // forward_ton_amount
+    //   .storeMaybeRef(beginCell().storeStringTail("something").endCell()) // forward_payload_amount if receiver is a smart contract
+    //   .endCell();
+    // const transaction = {
+    //   validUntil: Math.floor(Date.now() / 1000) + 360, // Transaction validity period
+    //   messages: [
+    //     {
+    //       address: usdtContractAddress.toString(), // Contract address in RAW format
+    //       amount: gasFee.toString(), // Gas amount
+    //       payload: payload.toBoc().toString('base64'),
+    //     },
+    //   ],
+    // };
+
+    // await TonConnector.sendTransaction(transaction);
+  </script>
 </html>

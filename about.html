@@ -1,37 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>html2canvas 截图保存</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      #capture {
+        width: 300px;
+        height: 200px;
+        background: lightblue;
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #333;
+      }
+      button {
+        margin-top: 10px;
+        padding: 8px 16px;
+        font-size: 16px;
+      }
+    </style>
   </head>
   <body>
-    <button id="open1">打开空白页 并赋值 baidu1</button>
-    <button id="open2">打开空白页 并赋值 applink</button>
-    <a
-      href="scbeasy://payments/bill/id/a6601f53-05cb-49a9-a5f5-afa6f9570d4f"
-      target="_blank"
-      >link</a
-    >
+    <!-- 需要截图的内容 -->
+    <div id="capture">
+      <h2>html2canvas 示例</h2>
+      <p>点击按钮截图并下载</p>
+    </div>
+
+    <!-- 按钮 -->
+    <button onclick="captureAndDownload()">截图并保存</button>
+
+    <script>
+      function captureAndDownload() {
+        const element = document.getElementById("capture");
+
+        html2canvas(element).then((canvas) => {
+          // 将 canvas 转换为图片 URL
+          const imgData = canvas.toDataURL("image/png");
+
+          // 创建下载链接
+          const link = document.createElement("a");
+          link.href = imgData;
+          link.download = "screenshot.png"; // 设置下载的文件名
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+    </script>
   </body>
-  <script>
-    document.getElementById("open1").addEventListener("click", () => {
-      let url = "https://www.baidu.com";
-      let url2 =
-        "scbeasy://payments/bill/id/a6601f53-05cb-49a9-a5f5-afa6f9570d4f";
-      let newWindow = window.open("", "_blank");
-      setTimeout(() => {
-        newWindow.location.href = url;
-      }, 2000);
-    });
-    document.getElementById("open2").addEventListener("click", () => {
-      let url = "https://www.baidu.com";
-      let url2 =
-        "scbeasy://payments/bill/id/a6601f53-05cb-49a9-a5f5-afa6f9570d4f";
-      let newWindow = window.open("", "_blank");
-      setTimeout(() => {
-        newWindow.location.href = url2;
-      }, 2000);
-    });
-  </script>
 </html>

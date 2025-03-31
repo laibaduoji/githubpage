@@ -9,7 +9,7 @@
       href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
     />
     <title>Document</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- <script src="https://telegram.org/js/telegram-web-app.js"></script> -->
     <style>
       div {
         margin-bottom: 20px;
@@ -27,16 +27,20 @@
   <body>
     <div id="app">
       <div>
-        <el-button @click="a_self1">
-          https://laibaduoji.github.io/vue3-finally/dist/#/
-        </el-button>
+        <div>
+          <el-button @click="a_self1">
+            https://laibaduoji.github.io/vue3-finally/dist/#/
+          </el-button>
 
-        <el-button @click="a_self2">
-          https://test-crypto-payment.alchemypay.org/#/walletton
-        </el-button>
-        <el-button @click="a_self3">
-          https://test-crypto-payment.alchemypay.org/connectWalletTon
-        </el-button>
+          <el-button @click="a_self2">
+            https://test-crypto-payment.alchemypay.org/#/walletton
+          </el-button>
+          <el-button @click="a_self3">
+            https://test-crypto-payment.alchemypay.org/connectWalletTon
+          </el-button>
+        </div>
+
+        <div></div>
 
         <el-button @click="getWebUrl">2. getWebUrl</el-button>
         <el-button :class="{'active':env=='dev'}" @click="setEnv('dev')"
@@ -161,7 +165,8 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
           test: "https://crypto-payment-test.alchemytech.cc/open/api/tgPayment",
           pro: "https://crypto-payment.alchemytech.cc/open/api/tgPayment",
         };
-        fetch(urlMap[env], requestOptions)
+        window
+          .fetch(urlMap[env], requestOptions)
           .then((response) => response.json())
           .then((result) => {
             console.log(result);
@@ -198,7 +203,7 @@ bnc://app.binance.com/payment/secpay?tempToken=FvLRH43OCDqRdio7xycAyqzqUAtwCwwM&
             if (code === "0") {
               this.link = model?.webUrl;
               // this.link = model?.webUrl;
-              this.link1 = `https://test-crypto-payment.alchemypay.org?orderNum=${model.orderNo}`;
+              this.link1 = `http://localhost:8081?orderNum=${model.orderNo}`;
               // 生成二维码
               QRCode.toCanvas(
                 document.getElementById("qrcode"),
