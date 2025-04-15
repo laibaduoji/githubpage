@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Device Information</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .info {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Device Information</h1>
+    <p id="device-info">Loading device info...</p>
+
+    <script>
+      function getDeviceInfo() {
+        const userAgent = navigator.userAgent;
+        let deviceInfo = {
+          userAgent: userAgent,
+          os: null,
+          device: null,
+          browser: null,
+          osVersion: null,
+          deviceVersion: null,
+        };
+
+        // 检测操作系统
+        if (/iPhone|iPad|iPod/i.test(userAgent)) {
+          deviceInfo.os = "iOS";
+          const iosVersion = userAgent.match(/OS (\d+_\d+)/);
+          if (iosVersion) {
+            deviceInfo.osVersion = iosVersion[1].replace("_", ".");
+          }
+          deviceInfo.deviceVersion = userAgent.match(/iPhone|iPad|iPod/i)
+            ? "iPhone/iPad/iPod"
+            : "Unknown";
+        } else if (/Android/i.test(userAgent)) {
+          deviceInfo.os = "Android";
+          const androidVersion = userAgent.match(/Android (\d+\.\d+)/);
+          if (androidVersion) {
+            deviceInfo.osVersion = androidVersion[1];
+          }
+          deviceInfo.deviceVersion = userAgent.match(
+            /Samsung|Google|OnePlus|Xiaomi/,
+          )
+            ? "Smartphone"
+            : "Unknown";
+        } else if (/Windows NT/i.test(userAgent)) {
+          deviceInfo.os = "Windows";
+          const windowsVersion = userAgent.match(/Windows NT (\d+\.\d+)/);
+          if (windowsVersion) {
+            deviceInfo.osVersion = windowsVersion[1];
+          }
+          deviceInfo.deviceVersion = "PC";
+        }
+
+        // 检测设备类型
+        if (/Mobile/i.test(userAgent)) {
+          deviceInfo.device = "Mobile";
+        } else if (/Tablet/i.test(userAgent)) {
+          deviceInfo.device = "Tablet";
+        } else {
+          deviceInfo.device = "Desktop";
+        }
+
+        // 检测浏览器
+        if (/Chrome/i.test(userAgent)) {
+          deviceInfo.browser = "Chrome";
+        } else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) {
+          deviceInfo.browser = "Safari";
+        } else if (/Firefox/i.test(userAgent)) {
+          deviceInfo.browser = "Firefox";
+        } else if (/Edge/i.test(userAgent)) {
+          deviceInfo.browser = "Edge";
+        } else {
+          deviceInfo.browser = "Unknown";
+        }
+
+        return deviceInfo;
+      }
+
+      function displayDeviceInfo() {
+        const deviceInfo = getDeviceInfo();
+        const deviceInfoElement = document.getElementById("device-info");
+
+        let infoHTML = `
+        <strong>User Agent:</strong> ${deviceInfo.userAgent} <br>
+        <strong>Operating System:</strong> ${deviceInfo.os} ${
+          deviceInfo.osVersion ? `(${deviceInfo.osVersion})` : ""
+        } <br>
+        <strong>Device Type:</strong> ${deviceInfo.device} <br>
+        <strong>Device Version:</strong> ${deviceInfo.deviceVersion} <br>
+        <strong>Browser:</strong> ${deviceInfo.browser} <br>
+      `;
+
+        deviceInfoElement.innerHTML = infoHTML;
+      }
+
+      // Load the device info
+      window.onload = displayDeviceInfo;
+    </script>
+  </body>
+</html>
