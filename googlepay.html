@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Checkout Flow</title>
+		<script src="https://checkout-web-components.checkout.com/index.js"></script>
+		<style>
+			#flow-container #googlepayAccordionButton {
+				display: none;
+			}
+			#flow-container .fe4je07 {
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="flow-container"></div>
+	</body>
+	<script>
+		let paymentSessions = [
+			{
+				id: "ps_32RhCJfS9kK8GX7FuUhlHTypKQH",
+				payment_session_secret: "pss_5ed66392-bb55-4ab6-b803-cbe8cf4ec8c4",
+				payment_session_token:
+					"YmFzZTY0:eyJpZCI6InBzXzMyUmhDSmZTOWtLOEdYN0Z1VWhsSFR5cEtRSCIsImVudGl0eV9pZCI6ImVudF9uNWh1M3N6bGlsMzNlYjI3N3pmNzQ0ZXV5ZSIsImV4cGVyaW1lbnRzIjp7fSwicHJvY2Vzc2luZ19jaGFubmVsX2lkIjoicGNfZzZlYmtqcmw1bjJ1ZG9kajcydmMyYmw0b3UiLCJhbW91bnQiOjE1MDAsImxvY2FsZSI6ImVuLUdCIiwiY3VycmVuY3kiOiJVU0QiLCJwYXltZW50X21ldGhvZHMiOlt7InR5cGUiOiJnb29nbGVwYXkiLCJtZXJjaGFudCI6eyJpZCI6IjA4MTEzMDg5Mzg2MjY4ODQ5OTgyIiwibmFtZSI6IlRvbSBTbWl0aCIsIm9yaWdpbiI6Imh0dHBzOi8vcmFtcC10ZXN0LmFsY2hlbXl0ZWNoLmNjIn0sInRyYW5zYWN0aW9uX2luZm8iOnsidG90YWxfcHJpY2Vfc3RhdHVzIjoiRklOQUwiLCJ0b3RhbF9wcmljZSI6IjE1IiwiY291bnRyeV9jb2RlIjoiR0IiLCJjdXJyZW5jeV9jb2RlIjoiVVNEIn0sImNhcmRfcGFyYW1ldGVycyI6eyJhbGxvd2VkX2F1dGhfbWV0aG9kcyI6WyJQQU5fT05MWSIsIkNSWVBUT0dSQU1fM0RTIl0sImFsbG93ZWRfY2FyZF9uZXR3b3JrcyI6WyJWSVNBIiwiTUFTVEVSQ0FSRCIsIkFNRVgiXX19XSwiZmVhdHVyZV9mbGFncyI6WyJhbmFseXRpY3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwiY2FyZF9maWVsZHNfZW5hYmxlZCIsImdldF93aXRoX3B1YmxpY19rZXlfZW5hYmxlZCIsImxvZ3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwicmlza19qc19lbmFibGVkIiwidXNlX25vbl9iaWNfaWRlYWxfaW50ZWdyYXRpb24iXSwicmlzayI6eyJlbmFibGVkIjpmYWxzZX0sIm1lcmNoYW50X25hbWUiOiJUb20gU21pdGgiLCJwYXltZW50X3Nlc3Npb25fc2VjcmV0IjoicHNzXzVlZDY2MzkyLWJiNTUtNGFiNi1iODAzLWNiZThjZjRlYzhjNCIsImludGVncmF0aW9uX2RvbWFpbiI6ImFwaS5zYW5kYm94LmNoZWNrb3V0LmNvbSJ9",
+				_links: {
+					self: {
+						href: "https://api.sandbox.checkout.com/payment-sessions/ps_32RhCJfS9kK8GX7FuUhlHTypKQH",
+					},
+				},
+			},
+			{
+				id: "ps_32E4B4QgS4DidDaHoMItoytFgDV",
+				payment_session_secret: "pss_5b096e63-466d-493b-bc0f-7a06e3ccb6ec",
+				payment_session_token:
+					"YmFzZTY0:eyJpZCI6InBzXzMyRTRCNFFnUzREaWREYUhvTUl0b3l0RmdEViIsImVudGl0eV9pZCI6ImVudF9uNWh1M3N6bGlsMzNlYjI3N3pmNzQ0ZXV5ZSIsImV4cGVyaW1lbnRzIjp7fSwicHJvY2Vzc2luZ19jaGFubmVsX2lkIjoicGNfZzZlYmtqcmw1bjJ1ZG9kajcydmMyYmw0b3UiLCJhbW91bnQiOjEwMDAsImxvY2FsZSI6ImVuLUdCIiwiY3VycmVuY3kiOiJHQlAiLCJwYXltZW50X21ldGhvZHMiOlt7InR5cGUiOiJhcHBsZXBheSIsImRpc3BsYXlfbmFtZSI6IkpvaG4gU21pdGgiLCJjb3VudHJ5X2NvZGUiOiJHQiIsImN1cnJlbmN5X2NvZGUiOiJHQlAiLCJtZXJjaGFudF9jYXBhYmlsaXRpZXMiOlsic3VwcG9ydHMzRFMiXSwic3VwcG9ydGVkX25ldHdvcmtzIjpbInZpc2EiLCJtYXN0ZXJDYXJkIiwiYW1leCJdLCJ0b3RhbCI6eyJsYWJlbCI6IkpvaG4gU21pdGgiLCJ0eXBlIjoiZmluYWwiLCJhbW91bnQiOiIxMCJ9fSx7InR5cGUiOiJnb29nbGVwYXkiLCJtZXJjaGFudCI6eyJpZCI6IjA4MTEzMDg5Mzg2MjY4ODQ5OTgyIiwibmFtZSI6IkpvaG4gU21pdGgiLCJvcmlnaW4iOiJodHRwczovL2V4YW1wbGUuY29tIn0sInRyYW5zYWN0aW9uX2luZm8iOnsidG90YWxfcHJpY2Vfc3RhdHVzIjoiRklOQUwiLCJ0b3RhbF9wcmljZSI6IjEwIiwiY291bnRyeV9jb2RlIjoiR0IiLCJjdXJyZW5jeV9jb2RlIjoiR0JQIn0sImNhcmRfcGFyYW1ldGVycyI6eyJhbGxvd2VkX2F1dGhfbWV0aG9kcyI6WyJQQU5fT05MWSIsIkNSWVBUT0dSQU1fM0RTIl0sImFsbG93ZWRfY2FyZF9uZXR3b3JrcyI6WyJWSVNBIiwiTUFTVEVSQ0FSRCIsIkFNRVgiXX19XSwiZmVhdHVyZV9mbGFncyI6WyJhbmFseXRpY3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwiY2FyZF9maWVsZHNfZW5hYmxlZCIsImdldF93aXRoX3B1YmxpY19rZXlfZW5hYmxlZCIsImxvZ3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwicmlza19qc19lbmFibGVkIiwidXNlX25vbl9iaWNfaWRlYWxfaW50ZWdyYXRpb24iXSwicmlzayI6eyJlbmFibGVkIjpmYWxzZX0sIm1lcmNoYW50X25hbWUiOiJKb2huIFNtaXRoIiwicGF5bWVudF9zZXNzaW9uX3NlY3JldCI6InBzc181YjA5NmU2My00NjZkLTQ5M2ItYmMwZi03YTA2ZTNjY2I2ZWMiLCJpbnRlZ3JhdGlvbl9kb21haW4iOiJhcGkuc2FuZGJveC5jaGVja291dC5jb20ifQ==",
+				_links: {
+					self: {
+						href: "https://api.sandbox.checkout.com/payment-sessions/ps_32E4B4QgS4DidDaHoMItoytFgDV",
+					},
+				},
+			},
+			{
+				id: "ps_32E4TJdjLk0FyQhP7IQ9oB2D7jM",
+				payment_session_secret: "pss_364c2eb6-0c40-4ac7-802a-6723134e9bf0",
+				payment_session_token:
+					"YmFzZTY0:eyJpZCI6InBzXzMyRTRUSmRqTGswRnlRaFA3SVE5b0IyRDdqTSIsImVudGl0eV9pZCI6ImVudF9uNWh1M3N6bGlsMzNlYjI3N3pmNzQ0ZXV5ZSIsImV4cGVyaW1lbnRzIjp7fSwicHJvY2Vzc2luZ19jaGFubmVsX2lkIjoicGNfZzZlYmtqcmw1bjJ1ZG9kajcydmMyYmw0b3UiLCJhbW91bnQiOjEwMCwibG9jYWxlIjoiZW4tR0IiLCJjdXJyZW5jeSI6IkdCUCIsInBheW1lbnRfbWV0aG9kcyI6W3sidHlwZSI6ImFwcGxlcGF5IiwiZGlzcGxheV9uYW1lIjoiSm9obiBTbWl0aCIsImNvdW50cnlfY29kZSI6IkdCIiwiY3VycmVuY3lfY29kZSI6IkdCUCIsIm1lcmNoYW50X2NhcGFiaWxpdGllcyI6WyJzdXBwb3J0czNEUyJdLCJzdXBwb3J0ZWRfbmV0d29ya3MiOlsidmlzYSIsIm1hc3RlckNhcmQiLCJhbWV4Il0sInRvdGFsIjp7ImxhYmVsIjoiSm9obiBTbWl0aCIsInR5cGUiOiJmaW5hbCIsImFtb3VudCI6IjEifX0seyJ0eXBlIjoiZ29vZ2xlcGF5IiwibWVyY2hhbnQiOnsiaWQiOiIwODExMzA4OTM4NjI2ODg0OTk4MiIsIm5hbWUiOiJKb2huIFNtaXRoIiwib3JpZ2luIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSJ9LCJ0cmFuc2FjdGlvbl9pbmZvIjp7InRvdGFsX3ByaWNlX3N0YXR1cyI6IkZJTkFMIiwidG90YWxfcHJpY2UiOiIxIiwiY291bnRyeV9jb2RlIjoiR0IiLCJjdXJyZW5jeV9jb2RlIjoiR0JQIn0sImNhcmRfcGFyYW1ldGVycyI6eyJhbGxvd2VkX2F1dGhfbWV0aG9kcyI6WyJQQU5fT05MWSIsIkNSWVBUT0dSQU1fM0RTIl0sImFsbG93ZWRfY2FyZF9uZXR3b3JrcyI6WyJWSVNBIiwiTUFTVEVSQ0FSRCIsIkFNRVgiXX19XSwiZmVhdHVyZV9mbGFncyI6WyJhbmFseXRpY3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwiY2FyZF9maWVsZHNfZW5hYmxlZCIsImdldF93aXRoX3B1YmxpY19rZXlfZW5hYmxlZCIsImxvZ3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwicmlza19qc19lbmFibGVkIiwidXNlX25vbl9iaWNfaWRlYWxfaW50ZWdyYXRpb24iXSwicmlzayI6eyJlbmFibGVkIjpmYWxzZX0sIm1lcmNoYW50X25hbWUiOiJKb2huIFNtaXRoIiwicGF5bWVudF9zZXNzaW9uX3NlY3JldCI6InBzc18zNjRjMmViNi0wYzQwLTRhYzctODAyYS02NzIzMTM0ZTliZjAiLCJpbnRlZ3JhdGlvbl9kb21haW4iOiJhcGkuc2FuZGJveC5jaGVja291dC5jb20ifQ==",
+				_links: {
+					self: {
+						href: "https://api.sandbox.checkout.com/payment-sessions/ps_32E4TJdjLk0FyQhP7IQ9oB2D7jM",
+					},
+				},
+			},
+		];
+
+		let paymentSession = paymentSessions[0];
+
+		const publicKey = "pk_sbox_oojajhh2zmo2mil6o5wjmy33tyf";
+		/*	const appearance = {
+					colorAction: "#5E48FC",
+					colorBackground: "#0A0A0C",
+					colorBorder: "#68686C",
+					colorDisabled: "#64646E",
+					colorError: "#FF3300",
+					colorFormBackground: "#1F1F1F",
+					colorFormBorder: "#1F1F1F",
+					colorInverse: "#F9F9FB",
+					colorOutline: "#ADA4EC",
+					colorPrimary: "#F9F9FB",
+					colorSecondary: "#828388",
+					colorSuccess: "#2ECC71",
+					button: {
+						fontFamily:
+							'"Roboto Mono", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+						fontSize: "16px",
+						fontWeight: 700,
+						letterSpacing: 0,
+						lineHeight: "24px",
+					},
+					footnote: {
+						fontFamily:
+							'"PT Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+						fontSize: "14px",
+						fontWeight: 400,
+						letterSpacing: 0,
+						lineHeight: "20px",
+					},
+					label: {
+						fontFamily:
+							'"Roboto Mono", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+						fontSize: "14px",
+						fontWeight: 400,
+						letterSpacing: 0,
+						lineHeight: "20px",
+					},
+					subheading: {
+						fontFamily:
+							'"Roboto Mono", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif',
+						fontSize: "16px",
+						fontWeight: 700,
+						letterSpacing: 0,
+						lineHeight: "24px",
+					},
+					borderRadius: ["8px", "8px"],
+				};
+				const componentOptions = {
+					card: {
+						data: {
+							cardholderName: "Jia Tsang",
+						},
+						displayCardholderName: "top",
+					},
+				};
+		*/
+		async function init() {
+			const checkout = await CheckoutWebComponents({
+				paymentSession: paymentSession,
+				publicKey: publicKey,
+				environment: "sandbox", // Use 'production' for Production environment
+				onPaymentCompleted: async (_self, paymentResponse) => {
+					// Handle synchronous payment completion
+					console.log("Payment successful", paymentResponse);
+				},
+				// appearance,
+				// componentOptions,
+			});
+			console.log(checkout);
+
+			const flowComponent = checkout.create("flow");
+			flowComponent.mount("#flow-container");
+			console.log(flowComponent);
+		}
+
+		init();
+	</script>
+</html>
