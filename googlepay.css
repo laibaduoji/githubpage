@@ -1,0 +1,32 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+#flow-container {
+  padding: 30px;
+}
+#flow-container #googlepayAccordionContainer {
+  border: 0;
+}
+#flow-container #googlepayAccordionButton {
+  display: none;
+}
+#flow-container #googlepayAccordionButton + div {
+  height: -webkit-fit-content !important;
+  height: -moz-fit-content !important;
+  height: fit-content !important;
+  font-size: 0;
+}
+#flow-container #googlepayAccordionPanel > div {
+  padding: 0;
+}
+#flow-container #googlepayAccordionPanel button#gpay-button-online-api-id,
+#flow-container #googlepayAccordionPanel button.gpay-card-info-container {
+  background: #0059da;
+  outline: none;
+}
+#flow-container #googlepayAccordionPanel button#gpay-button-online-api-id > div,
+#flow-container #googlepayAccordionPanel button.gpay-card-info-container > div {
+  background: #0059da;
+  outline: none;
+}
