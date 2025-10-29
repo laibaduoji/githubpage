@@ -1,10 +1,4 @@
-* {
-	margin: 0;
-	padding: 0;
-}
-
 #flow-container {
-	padding: 30px;
 	#googlepayAccordionContainer {
 		border: 0;
 	}
@@ -12,7 +6,7 @@
 		display: none;
 		& + div {
 			height: fit-content !important;
-			// font-size: 0;
+			font-size: 0;
 		}
 	}
 	#googlepayAccordionPanel {
@@ -26,13 +20,14 @@
 		button.gpay-card-info-container {
 			background: #0059da;
 			outline: none;
+			min-height: 48px;
 			& > div {
 				background: #0059da;
 				outline: none;
 			}
 		}
 		span[role="alert"] {
-			// display: none;
+			display: none;
 		}
 	}
 }
