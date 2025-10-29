@@ -15,7 +15,9 @@
   height: -webkit-fit-content !important;
   height: -moz-fit-content !important;
   height: fit-content !important;
-  font-size: 0;
+}
+#flow-container #googlepayAccordionPanel div {
+  padding: 0;
 }
 #flow-container #googlepayAccordionPanel > div {
   padding: 0;

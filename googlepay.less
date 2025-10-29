@@ -12,10 +12,13 @@
 		display: none;
 		& + div {
 			height: fit-content !important;
-			font-size: 0;
+			// font-size: 0;
 		}
 	}
 	#googlepayAccordionPanel {
+		div {
+			padding: 0;
+		}
 		& > div {
 			padding: 0;
 		}
@@ -27,6 +30,9 @@
 				background: #0059da;
 				outline: none;
 			}
+		}
+		span[role="alert"] {
+			// display: none;
 		}
 	}
 }
