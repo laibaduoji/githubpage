@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Checkout Flow</title>
 		<script src="https://checkout-web-components.checkout.com/index.js"></script>
+		<script src="https://risk.sandbox.checkout.com/cdn/risk/1/risk.js"></script>
 		<script src="./pay.js"></script>
 		<style></style>
 		<link rel="stylesheet" href="./googlepay.css" />
@@ -18,17 +19,17 @@
 	<script>
 		let paymentSessions = [
 			{
-				payment_session_secret: "pss_99b60f89-1d8e-4f6f-9b28-d151ad955dab",
+				payment_session_secret: "pss_64327e70-d776-4d91-a22c-9aab31d94c16",
 				_links: {
 					self: {
-						href: "https://api.sandbox.checkout.com/payment-sessions/ps_34lz151bqpB8uj1ex4VrxIwj24c",
+						href: "https://api.sandbox.checkout.com/payment-sessions/ps_34m31nn8bu3bok3HDa3r1puF1Xv",
 					},
 				},
 				webUrl:
-					"https://api.sandbox.checkout.com/payment-sessions/ps_34lz151bqpB8uj1ex4VrxIwj24c",
+					"https://api.sandbox.checkout.com/payment-sessions/ps_34m31nn8bu3bok3HDa3r1puF1Xv",
 				payment_session_token:
-					"YmFzZTY0:eyJpZCI6InBzXzM0bHoxNTFicXBCOHVqMWV4NFZyeEl3ajI0YyIsImVudGl0eV9pZCI6ImVudF9uNWh1M3N6bGlsMzNlYjI3N3pmNzQ0ZXV5ZSIsImV4cGVyaW1lbnRzIjp7fSwicHJvY2Vzc2luZ19jaGFubmVsX2lkIjoicGNfZzZlYmtqcmw1bjJ1ZG9kajcydmMyYmw0b3UiLCJhbW91bnQiOjE1MDAwLCJsb2NhbGUiOiJlbi1HQiIsImN1cnJlbmN5IjoiVVNEIiwicGF5bWVudF9tZXRob2RzIjpbeyJ0eXBlIjoiZ29vZ2xlcGF5IiwibWVyY2hhbnQiOnsiaWQiOiIwODExMzA4OTM4NjI2ODg0OTk4MiIsIm5hbWUiOiJDYXJkIEhvbGRlciBOYW1lIiwib3JpZ2luIjoiaHR0cHM6Ly9yYW1wLXRlc3QuYWxjaGVteXRlY2guY2MifSwidHJhbnNhY3Rpb25faW5mbyI6eyJ0b3RhbF9wcmljZV9zdGF0dXMiOiJGSU5BTCIsInRvdGFsX3ByaWNlIjoiMTUwIiwiY291bnRyeV9jb2RlIjoiR0IiLCJjdXJyZW5jeV9jb2RlIjoiVVNEIn0sImNhcmRfcGFyYW1ldGVycyI6eyJhbGxvd2VkX2F1dGhfbWV0aG9kcyI6WyJQQU5fT05MWSIsIkNSWVBUT0dSQU1fM0RTIl0sImFsbG93ZWRfY2FyZF9uZXR3b3JrcyI6WyJWSVNBIiwiTUFTVEVSQ0FSRCIsIkFNRVgiXX19XSwiZmVhdHVyZV9mbGFncyI6WyJhbmFseXRpY3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwiY2FyZF9maWVsZHNfZW5hYmxlZCIsImdldF93aXRoX3B1YmxpY19rZXlfZW5hYmxlZCIsImxvZ3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwicmlza19qc19lbmFibGVkIiwidXNlX25vbl9iaWNfaWRlYWxfaW50ZWdyYXRpb24iXSwicmlzayI6eyJlbmFibGVkIjpmYWxzZX0sIm1lcmNoYW50X25hbWUiOiJDYXJkIEhvbGRlciBOYW1lIiwicGF5bWVudF9zZXNzaW9uX3NlY3JldCI6InBzc185OWI2MGY4OS0xZDhlLTRmNmYtOWIyOC1kMTUxYWQ5NTVkYWIiLCJpbnRlZ3JhdGlvbl9kb21haW4iOiJhcGkuc2FuZGJveC5jaGVja291dC5jb20ifQ==",
-				id: "ps_34lz151bqpB8uj1ex4VrxIwj24c",
+					"YmFzZTY0:eyJpZCI6InBzXzM0bTMxbm44YnUzYm9rM0hEYTNyMXB1RjFYdiIsImVudGl0eV9pZCI6ImVudF9uNWh1M3N6bGlsMzNlYjI3N3pmNzQ0ZXV5ZSIsImV4cGVyaW1lbnRzIjp7fSwicHJvY2Vzc2luZ19jaGFubmVsX2lkIjoicGNfZzZlYmtqcmw1bjJ1ZG9kajcydmMyYmw0b3UiLCJhbW91bnQiOjMwMCwibG9jYWxlIjoiZW4tR0IiLCJjdXJyZW5jeSI6IlVTRCIsInBheW1lbnRfbWV0aG9kcyI6W3sidHlwZSI6Imdvb2dsZXBheSIsIm1lcmNoYW50Ijp7ImlkIjoiMDgxMTMwODkzODYyNjg4NDk5ODIiLCJuYW1lIjoiQ2FyZCBIb2xkZXIgTmFtZSIsIm9yaWdpbiI6Imh0dHBzOi8vcmFtcC10ZXN0LmFsY2hlbXl0ZWNoLmNjIn0sInRyYW5zYWN0aW9uX2luZm8iOnsidG90YWxfcHJpY2Vfc3RhdHVzIjoiRklOQUwiLCJ0b3RhbF9wcmljZSI6IjMiLCJjb3VudHJ5X2NvZGUiOiJHQiIsImN1cnJlbmN5X2NvZGUiOiJVU0QifSwiY2FyZF9wYXJhbWV0ZXJzIjp7ImFsbG93ZWRfYXV0aF9tZXRob2RzIjpbIlBBTl9PTkxZIiwiQ1JZUFRPR1JBTV8zRFMiXSwiYWxsb3dlZF9jYXJkX25ldHdvcmtzIjpbIlZJU0EiLCJNQVNURVJDQVJEIiwiQU1FWCJdfX1dLCJmZWF0dXJlX2ZsYWdzIjpbImFuYWx5dGljc19vYnNlcnZhYmlsaXR5X2VuYWJsZWQiLCJjYXJkX2ZpZWxkc19lbmFibGVkIiwiZ2V0X3dpdGhfcHVibGljX2tleV9lbmFibGVkIiwibG9nc19vYnNlcnZhYmlsaXR5X2VuYWJsZWQiLCJyaXNrX2pzX2VuYWJsZWQiLCJ1c2Vfbm9uX2JpY19pZGVhbF9pbnRlZ3JhdGlvbiJdLCJyaXNrIjp7ImVuYWJsZWQiOmZhbHNlfSwibWVyY2hhbnRfbmFtZSI6IkNhcmQgSG9sZGVyIE5hbWUiLCJwYXltZW50X3Nlc3Npb25fc2VjcmV0IjoicHNzXzY0MzI3ZTcwLWQ3NzYtNGQ5MS1hMjJjLTlhYWIzMWQ5NGMxNiIsImludGVncmF0aW9uX2RvbWFpbiI6ImFwaS5zYW5kYm94LmNoZWNrb3V0LmNvbSJ9",
+				id: "ps_34m31nn8bu3bok3HDa3r1puF1Xv",
 			},
 		];
 
