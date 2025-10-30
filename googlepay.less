@@ -1,15 +1,33 @@
+.outer {
+	padding: 20px;
+	margin: 20px;
+	border: 1px solid #000;
+	position: relative;
+	.mask {
+		position: absolute;
+		z-index: 1;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		background: lightcoral;
+		opacity: 0.3;
+		pointer-events: none;
+	}
+}
+
 #flow-container {
 	#googlepayAccordionContainer {
 		border: 0;
 	}
 	#googlepayAccordionButton {
 		display: none;
-		& + div {
+		/*	& + div {
 			height: fit-content !important;
 			font-size: 0;
-		}
+		}*/
 	}
-	#googlepayAccordionPanel {
+	/*	#googlepayAccordionPanel {
 		div {
 			padding: 0;
 		}
@@ -29,5 +47,5 @@
 		span[role="alert"] {
 			display: none;
 		}
-	}
+	}*/
 }
