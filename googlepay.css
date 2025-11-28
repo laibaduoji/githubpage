@@ -4,42 +4,44 @@ html {
 .flow-container-box {
   position: relative;
   border-radius: 0.06rem;
-  overflow: hidden;
-  height: 0.48rem;
-}
-.flow-container-box #flow-container #googlepayAccordionContainer {
-  border: 0;
-}
-.flow-container-box #flow-container #googlepayAccordionButton {
-  display: none;
-}
-.flow-container-box #flow-container #googlepayAccordionButton + div {
-  height: -webkit-fit-content !important;
-  height: -moz-fit-content !important;
-  height: fit-content !important;
-  font-size: 0;
-}
-.flow-container-box #flow-container #googlepayAccordionPanel div {
-  padding: 0;
-}
-.flow-container-box #flow-container #googlepayAccordionPanel > div {
-  padding: 0;
-}
-.flow-container-box #flow-container #googlepayAccordionPanel button#gpay-button-online-api-id,
-.flow-container-box #flow-container #googlepayAccordionPanel button.gpay-card-info-container {
-  background: #0059da;
-  outline: none;
-  min-height: 48px;
-}
-.flow-container-box #flow-container #googlepayAccordionPanel button#gpay-button-online-api-id > div,
-.flow-container-box #flow-container #googlepayAccordionPanel button.gpay-card-info-container > div {
-  background: #0059da;
-  outline: none;
-}
-.flow-container-box #flow-container #googlepayAccordionPanel span[role="alert"] {
-  display: none;
+  /*overflow: hidden;
+	height: 0.48rem;
+	#flow-container {
+		#googlepayAccordionContainer {
+			border: 0;
+		}
+		#googlepayAccordionButton {
+			display: none;
+			& + div {
+				height: fit-content !important;
+				font-size: 0;
+			}
+		}
+		#googlepayAccordionPanel {
+			div {
+				padding: 0;
+			}
+			& > div {
+				padding: 0;
+			}
+			button#gpay-button-online-api-id,
+			button.gpay-card-info-container {
+				background: #0059da;
+				outline: none;
+				min-height: 48px;
+				& > div {
+					background: #0059da;
+					outline: none;
+				}
+			}
+			span[role="alert"] {
+				display: none;
+			}
+		}
+	}*/
 }
 .flow-container-box .flow-container-mask {
+  display: none !important;
   position: absolute;
   z-index: 1;
   top: 0px;

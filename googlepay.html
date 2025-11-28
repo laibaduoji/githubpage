@@ -9,58 +9,81 @@
 		<script src="./pay.js"></script>
 		<style></style>
 		<link rel="stylesheet" href="./googlepay.css" />
+		<script src="./libs/vue/vue.js"></script>
 	</head>
 	<body>
-		<div class="flow-container-box">
-			<div id="flow-container"></div>
-			<div class="flow-container-mask"></div>
+		<div id="app">
+			<div class="flow-container-box">
+				<div id="flow-container"></div>
+				<div class="flow-container-mask"></div>
+			</div>
 		</div>
 	</body>
 	<script>
-		let paymentSessions = [
-			{
-				payment_session_secret: "pss_64327e70-d776-4d91-a22c-9aab31d94c16",
-				_links: {
-					self: {
-						href: "https://api.sandbox.checkout.com/payment-sessions/ps_34m31nn8bu3bok3HDa3r1puF1Xv",
+		/*
+		{
+	"id": "pay_mzqet2jjeihudp37jts5vnyi44",
+	"status": "Action Required",
+	"type": "googlepay",
+	"action": {
+		"type": "3ds",
+		"url": "https://authentication-devices.sandbox.checkout.com/sessions-interceptor/sid_cwbsjmvbwwoethodnvs2lqvvku"
+	}
+}	
+
+		 */
+	</script>
+
+	<script>
+		new Vue({
+			el: "#app",
+			mounted() {
+				console.log(`%c${"mounted"}`, "font-size:30px;color:#aa5ff0");
+				let paymentSessions = [
+					{
+						id: "ps_34mMO8PNl17zousgj96y5CcqUPO",
+						payment_session_secret: "pss_70d876a6-3cf9-4dbf-b52a-7b1624628a66",
+						payment_session_token:
+							"YmFzZTY0:eyJpZCI6InBzXzM0bU1POFBObDE3em91c2dqOTZ5NUNjcVVQTyIsImVudGl0eV9pZCI6ImVudF9uNWh1M3N6bGlsMzNlYjI3N3pmNzQ0ZXV5ZSIsImV4cGVyaW1lbnRzIjp7fSwicHJvY2Vzc2luZ19jaGFubmVsX2lkIjoicGNfZzZlYmtqcmw1bjJ1ZG9kajcydmMyYmw0b3UiLCJhbW91bnQiOjE1MDAsImxvY2FsZSI6ImVuLUdCIiwiY3VycmVuY3kiOiJVU0QiLCJwYXltZW50X21ldGhvZHMiOlt7InR5cGUiOiJnb29nbGVwYXkiLCJtZXJjaGFudCI6eyJpZCI6IjA4MTEzMDg5Mzg2MjY4ODQ5OTgyIiwibmFtZSI6IlRvbSBTbWl0aCIsIm9yaWdpbiI6Imh0dHBzOi8vcmFtcC10ZXN0LmFsY2hlbXl0ZWNoLmNjIn0sInRyYW5zYWN0aW9uX2luZm8iOnsidG90YWxfcHJpY2Vfc3RhdHVzIjoiRklOQUwiLCJ0b3RhbF9wcmljZSI6IjE1IiwiY291bnRyeV9jb2RlIjoiR0IiLCJjdXJyZW5jeV9jb2RlIjoiVVNEIn0sImNhcmRfcGFyYW1ldGVycyI6eyJhbGxvd2VkX2F1dGhfbWV0aG9kcyI6WyJQQU5fT05MWSIsIkNSWVBUT0dSQU1fM0RTIl0sImFsbG93ZWRfY2FyZF9uZXR3b3JrcyI6WyJWSVNBIiwiTUFTVEVSQ0FSRCIsIkFNRVgiXX19XSwiZmVhdHVyZV9mbGFncyI6WyJhbmFseXRpY3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwiY2FyZF9maWVsZHNfZW5hYmxlZCIsImdldF93aXRoX3B1YmxpY19rZXlfZW5hYmxlZCIsImxvZ3Nfb2JzZXJ2YWJpbGl0eV9lbmFibGVkIiwicmlza19qc19lbmFibGVkIiwidXNlX25vbl9iaWNfaWRlYWxfaW50ZWdyYXRpb24iXSwicmlzayI6eyJlbmFibGVkIjpmYWxzZX0sIm1lcmNoYW50X25hbWUiOiJUb20gU21pdGgiLCJwYXltZW50X3Nlc3Npb25fc2VjcmV0IjoicHNzXzcwZDg3NmE2LTNjZjktNGRiZi1iNTJhLTdiMTYyNDYyOGE2NiIsImludGVncmF0aW9uX2RvbWFpbiI6ImFwaS5zYW5kYm94LmNoZWNrb3V0LmNvbSJ9",
+						_links: {
+							self: {
+								href: "https://api.sandbox.checkout.com/payment-sessions/ps_34mMO8PNl17zousgj96y5CcqUPO",
+							},
+						},
 					},
-				},
-				webUrl:
-					"https://api.sandbox.checkout.com/payment-sessions/ps_34m31nn8bu3bok3HDa3r1puF1Xv",
-				payment_session_token:
-					"YmFzZTY0:eyJpZCI6InBzXzM0bTMxbm44YnUzYm9rM0hEYTNyMXB1RjFYdiIsImVudGl0eV9pZCI6ImVudF9uNWh1M3N6bGlsMzNlYjI3N3pmNzQ0ZXV5ZSIsImV4cGVyaW1lbnRzIjp7fSwicHJvY2Vzc2luZ19jaGFubmVsX2lkIjoicGNfZzZlYmtqcmw1bjJ1ZG9kajcydmMyYmw0b3UiLCJhbW91bnQiOjMwMCwibG9jYWxlIjoiZW4tR0IiLCJjdXJyZW5jeSI6IlVTRCIsInBheW1lbnRfbWV0aG9kcyI6W3sidHlwZSI6Imdvb2dsZXBheSIsIm1lcmNoYW50Ijp7ImlkIjoiMDgxMTMwODkzODYyNjg4NDk5ODIiLCJuYW1lIjoiQ2FyZCBIb2xkZXIgTmFtZSIsIm9yaWdpbiI6Imh0dHBzOi8vcmFtcC10ZXN0LmFsY2hlbXl0ZWNoLmNjIn0sInRyYW5zYWN0aW9uX2luZm8iOnsidG90YWxfcHJpY2Vfc3RhdHVzIjoiRklOQUwiLCJ0b3RhbF9wcmljZSI6IjMiLCJjb3VudHJ5X2NvZGUiOiJHQiIsImN1cnJlbmN5X2NvZGUiOiJVU0QifSwiY2FyZF9wYXJhbWV0ZXJzIjp7ImFsbG93ZWRfYXV0aF9tZXRob2RzIjpbIlBBTl9PTkxZIiwiQ1JZUFRPR1JBTV8zRFMiXSwiYWxsb3dlZF9jYXJkX25ldHdvcmtzIjpbIlZJU0EiLCJNQVNURVJDQVJEIiwiQU1FWCJdfX1dLCJmZWF0dXJlX2ZsYWdzIjpbImFuYWx5dGljc19vYnNlcnZhYmlsaXR5X2VuYWJsZWQiLCJjYXJkX2ZpZWxkc19lbmFibGVkIiwiZ2V0X3dpdGhfcHVibGljX2tleV9lbmFibGVkIiwibG9nc19vYnNlcnZhYmlsaXR5X2VuYWJsZWQiLCJyaXNrX2pzX2VuYWJsZWQiLCJ1c2Vfbm9uX2JpY19pZGVhbF9pbnRlZ3JhdGlvbiJdLCJyaXNrIjp7ImVuYWJsZWQiOmZhbHNlfSwibWVyY2hhbnRfbmFtZSI6IkNhcmQgSG9sZGVyIE5hbWUiLCJwYXltZW50X3Nlc3Npb25fc2VjcmV0IjoicHNzXzY0MzI3ZTcwLWQ3NzYtNGQ5MS1hMjJjLTlhYWIzMWQ5NGMxNiIsImludGVncmF0aW9uX2RvbWFpbiI6ImFwaS5zYW5kYm94LmNoZWNrb3V0LmNvbSJ9",
-				id: "ps_34m31nn8bu3bok3HDa3r1puF1Xv",
+				];
+
+				let paymentSession = paymentSessions[0];
+
+				const publicKey = "pk_sbox_oojajhh2zmo2mil6o5wjmy33tyf";
+
+				async function init() {
+					const checkout = await CheckoutWebComponents({
+						paymentSession: paymentSession,
+						publicKey: publicKey,
+						environment: "sandbox", // Use 'production' for Production environment
+						onPaymentCompleted: async (_self, paymentResponse) => {
+							// Handle synchronous payment completion
+							console.log("Payment successful", paymentResponse);
+						},
+						onError: async (component, error) => {
+							console.log(`%c${"error"}`, "font-size:30px;color:#aa5ff0");
+							console.dir(error);
+							console.log(component);
+						},
+					});
+					console.log(checkout);
+
+					const flowComponent = checkout.create("flow");
+					flowComponent.mount("#flow-container");
+					console.log(`%c${"flow dosn"}`, "font-size:30px;color:#aa5ff0");
+					console.log(flowComponent);
+				}
+
+				init();
 			},
-		];
+		});
 
-		let paymentSession = paymentSessions[0];
-
-		const publicKey = "pk_sbox_oojajhh2zmo2mil6o5wjmy33tyf";
-
-		async function init() {
-			const checkout = await CheckoutWebComponents({
-				paymentSession: paymentSession,
-				publicKey: publicKey,
-				environment: "sandbox", // Use 'production' for Production environment
-				onPaymentCompleted: async (_self, paymentResponse) => {
-					// Handle synchronous payment completion
-					console.log("Payment successful", paymentResponse);
-				},
-				onError: async (component, error) => {
-					console.log(`%c${"error"}`, "font-size:30px;color:#aa5ff0");
-					console.dir(error);
-					console.log(component);
-				},
-			});
-			console.log(checkout);
-
-			const flowComponent = checkout.create("flow");
-			flowComponent.mount("#flow-container");
-			console.log(`%c${"flow dosn"}`, "font-size:30px;color:#aa5ff0");
-			console.log(flowComponent);
-		}
-
-		init();
 		/*	let c = 0;
 		let t = setInterval(() => {
 			c++;
