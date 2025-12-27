@@ -2,43 +2,98 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script
-      async
-      id="risk-js"
-      src="https://risk.sandbox.checkout.com/cdn/risk/1.4/risk.js"
-      integrity="sha384-ZSxqmpAFmoazrVM8jZUo/UID9JuAF37l6UXDXrXJOI4UABnFtMNSCnpc26T0Ar+0"
-      crossorigin="anonymous"
-    ></script>
-  </head>
-  <body></body>
-  <script>
-    const script = document.getElementById("risk-js");
-
-    window.addEventListener("message", function (event) {
-      console.log("event");
-      console.log(event);
-      /* if (event.origin !== 'https://expected-origin.com') {
-    return; // 忽略来自不安全来源的消息
-  }
-  // 处理消息*/
-    });
-
-    script.addEventListener("load", async () => {
-      console.log(window.Risk);
-      const risk = window.Risk.init("pk_sbox_srkhzyxmotpo6vnfhqixvs66kyt");
-
-      try {
-        console.log(`%c${"risk"}`, "font-size:30px;color:#aa5ff0");
-        // use Risk.js here
-        const deviceSessionId = await risk.publishRiskData(); // dsid_XXXX
-
-        console.log({ deviceSessionId: deviceSessionId });
-      } catch (e) {
-        console.log(`%c${"e"}`, "font-size:30px;color:#aa5ff0");
-        console.log(e);
+    <script src="https://static.sumsub.com/idensic/static/sns-websdk-builder.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-    });
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .box {
+        width: 90%;
+        height: 80%;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        border: 1px solid #ff0;
+        overflow: hidden;
+        max-width: 336px;
+        max-height: 532px;
+        padding-right: 20px;
+      }
+      #sumsub-websdk-container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+      }
+      iframe {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <!-- iframe will be inserted as a child element -->
+      <div id="sumsub-websdk-container"></div>
+    </div>
+  </body>
+  <script>
+    /**
+     * @param accessToken - access token that you generated on the backend
+     */
+    function launchWebSdk(accessToken) {
+      let snsWebSdkInstance = snsWebSdk
+        .init(
+          accessToken,
+          // token update callback, must return Promise
+          // Access token expired
+          // get a new one and pass it to the callback to re-initiate the WebSDK
+          () => this.getNewAccessToken()
+        )
+        .withConf({
+          lang: "en", //language of WebSDK texts and comments (ISO 639-1 format)
+          theme: "dark" | "light",
+        })
+        .withOptions({
+          adaptIframeHeight: false,
+        })
+        // see below what kind of messages WebSDK generates
+        .on("idCheck.onStepCompleted", (payload) => {
+          console.log("onStepCompleted", payload);
+        })
+        .on("idCheck.onError", (error) => {
+          console.log("onError", error);
+        })
+        .build();
+
+      // you are ready to go:
+      // just launch the WebSDK by providing the container element for it
+      snsWebSdkInstance.launch("#sumsub-websdk-container");
+    }
+
+    function getNewAccessToken() {
+      return Promise.resolve(newAccessToken.data); // get a new token from your backend
+    }
+    const newAccessToken = {
+      success: true,
+      returnCode: "0000",
+      returnMsg: "SUCCESS",
+      extend: "",
+      data: "_act-sbx-jwt-eyJhbGciOiJub25lIn0.eyJqdGkiOiJfYWN0LXNieC0yZWE0YTdjNS04YjAyLTRmZGEtODY2NC0zZDAzZDE0YjUwZTYtdjIiLCJ1cmwiOiJodHRwczovL2FwaS5zdW1zdWIuY29tIn0.-v2",
+      traceId: "693795690994552dda99376c923f9691",
+    };
+
+    launchWebSdk(newAccessToken.data);
   </script>
 </html>
