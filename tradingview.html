@@ -7,15 +7,35 @@
 		<!-- ES module script -->
 		<script
 			type="module"
-			src="https://www.tradingview-widget.com/w/en/tv-ticker-tape.js"
+			src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js"
 		></script>
+		<style>
+			.widget-fixed {
+				display: block;
+				width: 250px;
+				height: 200px;
+				overflow: hidden;
+				/* Optional: make it responsive within a cap */
+				max-width: 100%;
+			}
+		</style>
 	</head>
 	<body>
-		<!-- Custom element -->
-		<tv-ticker-tape
-			symbols="NASDAQ:AAPL,NASDAQ:ADBE,NASDAQ:NVDA,NASDAQ:TSLA"
-			direction="vertical"
-			item-size="compact"
-		></tv-ticker-tape>
+		<div class="widget-fixed">
+			<!-- Custom element -->
+			<!-- 	<tv-ticker-tape
+				symbols="NASDAQ:AAPL,NASDAQ:ADBE,NASDAQ:NVDA,NASDAQ:TSLA"
+				direction="vertical"
+				item-size="compact"
+			></tv-ticker-tape> -->
+		</div>
+		<!--  -->
+		<!--  -->
+		<!--  -->
+		<!--  -->
+		<div class="widget-fixed">
+			<!-- Custom element -->
+			<tv-mini-chart symbol="NASDAQ:AAPL"></tv-mini-chart>
+		</div>
 	</body>
 </html>
