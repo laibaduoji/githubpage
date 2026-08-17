@@ -671,12 +671,14 @@
 
         const apiMsg = pickApiMessage(json);
         const failedByHttp = !res.ok;
+        const returnCode = json && String(json.returnCode == null ? "" : json.returnCode);
+        const isSuccessCode =
+          returnCode === "0000" ||
+          returnCode === "00000" ||
+          returnCode === "0";
         const failedByBiz =
           json &&
-          (json.success === false ||
-            (json.returnCode &&
-              String(json.returnCode) !== "00000" &&
-              String(json.returnCode) !== "0"));
+          (json.success === false || (returnCode && !isSuccessCode));
 
         if (failedByHttp || failedByBiz) {
           const fail = {
