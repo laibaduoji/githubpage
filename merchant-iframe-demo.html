@@ -156,15 +156,6 @@
   </head>
   <body>
     <h1>Merchant Ramp iframe Demo</h1>
-    <p class="intro">
-      这是商户父页面模拟器：Alchemy Pay Ramp 在下方 iframe 内运行；用户在 Ramp
-      内关闭/返回出口时，会向父页面 <code>postMessage</code> 对象消息
-      <code>type: "orderClosed"</code>，本页会展示订单详情。
-    </p>
-    <p class="security-note">
-      安全说明：演示环境暂不校验 <code>event.origin</code>。生产环境应校验 Ramp
-      域名 origin（例如 test / 正式 Ramp 域名），拒绝未知来源消息。
-    </p>
 
     <div class="panel">
       <div class="controls">
@@ -173,7 +164,7 @@
           <input
             id="url-input"
             type="url"
-            value="https://ramp-test.alchemytech.cc/?appId=ahzxh0klegv1fzol&amp;type=buy&amp;sign=rk8xjxB1K1i67N%2FG5tg97WOGKqBnq4oOwkmxOIvY6aU%3D#/index"
+            value="https://ramp-test.alchemytech.cc/demo/index.html"
           />
         </label>
         <button id="load-btn" type="button">加载 / 打开</button>
@@ -184,7 +175,7 @@
     <iframe
       id="ramp-iframe"
       title="Alchemy Pay Ramp"
-      src="https://ramp-test.alchemytech.cc/?appId=ahzxh0klegv1fzol&amp;type=buy&amp;sign=rk8xjxB1K1i67N%2FG5tg97WOGKqBnq4oOwkmxOIvY6aU%3D#/index"
+      src="https://ramp-test.alchemytech.cc/demo/index.html"
       allow="camera; microphone; payment; clipboard-read; clipboard-write"
     ></iframe>
 
@@ -203,171 +194,5 @@
         <li class="placeholder">暂无日志</li>
       </ul>
     </div>
-
-    <script>
-      (function () {
-        var DEFAULT_URL =
-          "https://ramp-test.alchemytech.cc/?appId=ahzxh0klegv1fzol&type=buy&sign=rk8xjxB1K1i67N%2FG5tg97WOGKqBnq4oOwkmxOIvY6aU%3D#/index";
-
-        var ORDER_FIELDS = [
-          "type",
-          "orderNo",
-          "merchantOrderNo",
-          "orderStatus",
-          "orderAmount",
-          "fiatCode",
-          "cryptocurrency",
-          "cryptoQuantity",
-          "address",
-          "network",
-          "networkName",
-          "merchantName",
-          "txId",
-        ];
-
-        var urlInput = document.getElementById("url-input");
-        var iframe = document.getElementById("ramp-iframe");
-        var loadBtn = document.getElementById("load-btn");
-        var clearBtn = document.getElementById("clear-btn");
-        var orderFieldsEl = document.getElementById("order-fields");
-        var jsonView = document.getElementById("json-view");
-        var detailTime = document.getElementById("detail-time");
-        var logList = document.getElementById("log-list");
-
-        function formatTime(d) {
-          var pad = function (n) {
-            return String(n).padStart(2, "0");
-          };
-          return (
-            d.getFullYear() +
-            "-" +
-            pad(d.getMonth() + 1) +
-            "-" +
-            pad(d.getDate()) +
-            " " +
-            pad(d.getHours()) +
-            ":" +
-            pad(d.getMinutes()) +
-            ":" +
-            pad(d.getSeconds()) +
-            "." +
-            String(d.getMilliseconds()).padStart(3, "0")
-          );
-        }
-
-        function displayValue(v) {
-          if (v === undefined || v === null || v === "") return "—";
-          return String(v);
-        }
-
-        function renderEmptyFields() {
-          orderFieldsEl.innerHTML = "";
-          ORDER_FIELDS.forEach(function (key) {
-            var dt = document.createElement("dt");
-            dt.textContent = key;
-            var dd = document.createElement("dd");
-            dd.className = "empty";
-            dd.textContent = "—";
-            orderFieldsEl.appendChild(dt);
-            orderFieldsEl.appendChild(dd);
-          });
-        }
-
-        function renderOrderDetails(data, receivedAt) {
-          orderFieldsEl.innerHTML = "";
-          ORDER_FIELDS.forEach(function (key) {
-            var dt = document.createElement("dt");
-            dt.textContent = key;
-            var dd = document.createElement("dd");
-            dd.textContent = displayValue(data[key]);
-            orderFieldsEl.appendChild(dt);
-            orderFieldsEl.appendChild(dd);
-          });
-          detailTime.textContent = "最新：" + formatTime(receivedAt);
-          detailTime.className = "";
-          jsonView.textContent = JSON.stringify(data, null, 2);
-          jsonView.classList.remove("placeholder");
-        }
-
-        function appendLog(summary, origin, data) {
-          var placeholder = logList.querySelector(".placeholder");
-          if (placeholder) placeholder.remove();
-
-          var prev = logList.querySelector("li.latest");
-          if (prev) prev.classList.remove("latest");
-
-          var li = document.createElement("li");
-          li.className = "latest";
-          var meta = document.createElement("div");
-          meta.className = "log-meta";
-          meta.textContent =
-            formatTime(new Date()) +
-            " · " +
-            summary +
-            " · origin: " +
-            (origin || "—");
-          li.appendChild(meta);
-          if (data !== undefined) {
-            var pre = document.createElement("pre");
-            pre.className = "json";
-            pre.style.maxHeight = "120px";
-            pre.style.margin = "0";
-            pre.textContent =
-              typeof data === "string" ? data : JSON.stringify(data, null, 2);
-            li.appendChild(pre);
-          }
-          logList.insertBefore(li, logList.firstChild);
-        }
-
-        function clearAll() {
-          renderEmptyFields();
-          jsonView.textContent = "等待 orderClosed…";
-          jsonView.classList.add("placeholder");
-          detailTime.textContent = "尚未收到消息";
-          detailTime.className = "placeholder";
-          logList.innerHTML = '<li class="placeholder">暂无日志</li>';
-        }
-
-        function loadIframe() {
-          var url = (urlInput.value || "").trim() || DEFAULT_URL;
-          urlInput.value = url;
-          // Re-assign even if same URL to force reload
-          iframe.src = "about:blank";
-          setTimeout(function () {
-            iframe.src = url;
-          }, 0);
-          appendLog("加载 iframe", location.origin, url);
-        }
-
-        loadBtn.addEventListener("click", loadIframe);
-        clearBtn.addEventListener("click", clearAll);
-        urlInput.addEventListener("keydown", function (e) {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            loadIframe();
-          }
-        });
-
-        /*
-         * Demo: 不校验 event.origin。
-         * Production: 应校验 origin 为 Ramp 域名，例如：
-         *   https://ramp-test.alchemytech.cc
-         *   https://ramp.alchemypay.org
-         * 拒绝其他来源的 postMessage。
-         */
-        window.addEventListener("message", function (event) {
-          // if (event.origin !== "https://ramp-test.alchemytech.cc") return;
-
-          var data = event.data;
-          if (data && typeof data === "object" && data.type === "orderClosed") {
-            var now = new Date();
-            renderOrderDetails(data, now);
-            appendLog("orderClosed", event.origin, data);
-          }
-        });
-
-        renderEmptyFields();
-      })();
-    </script>
   </body>
 </html>
