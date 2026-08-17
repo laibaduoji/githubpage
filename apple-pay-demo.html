@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apple Pay Demo</title>
+    <script src="https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-sdk.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #1a1a1a;
+        background: #f5f5f5;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+      .intro {
+        margin: 0 0 4px;
+        color: #333;
+      }
+      .note {
+        margin: 0 0 16px;
+        font-size: 12px;
+        color: #666;
+      }
+      .panel {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+      .panel h2 {
+        margin: 0 0 10px;
+        font-size: 15px;
+      }
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .panel-header h2 {
+        margin: 0;
+      }
+      .fields {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 6px 12px;
+      }
+      .fields dt {
+        margin: 0;
+        color: #666;
+        font-weight: 500;
+      }
+      .fields dd {
+        margin: 0;
+        word-break: break-all;
+      }
+      .status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: #eee;
+        color: #555;
+      }
+      .status.ok {
+        background: #e6f6e6;
+        color: #1a7f1a;
+      }
+      .status.bad {
+        background: #fdeaea;
+        color: #b42318;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      button {
+        padding: 8px 14px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        background: #1a1a1a;
+        color: #fff;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      button.secondary {
+        background: #fff;
+        color: #1a1a1a;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      apple-pay-button {
+        --apple-pay-button-width: 200px;
+        --apple-pay-button-height: 44px;
+        --apple-pay-button-border-radius: 6px;
+        --apple-pay-button-padding: 0;
+        display: inline-block;
+      }
+      apple-pay-button.is-disabled {
+        pointer-events: none;
+        opacity: 0.45;
+      }
+      pre.json {
+        margin: 0;
+        padding: 10px;
+        background: #f8f8f8;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        overflow: auto;
+        max-height: 280px;
+        font-size: 12px;
+      }
+      #log-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        max-height: 240px;
+        overflow: auto;
+      }
+      #log-list li {
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+        font-size: 12px;
+      }
+      #log-list li:last-child {
+        border-bottom: none;
+      }
+      #log-list li.latest {
+        background: #fff8e6;
+        border-left: 3px solid #e6a800;
+      }
+      .log-meta {
+        color: #666;
+        margin-bottom: 4px;
+      }
+      .placeholder {
+        color: #999;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Apple Pay Demo</h1>
+    <p class="intro">
+      商户 Apple Pay 测试页：点击按钮拉起系统支付；校验走
+      <code>/pay/apple/domainName/verify</code>。
+    </p>
+    <p class="note">
+      需 Safari（或支持 Apple Pay 的浏览器）+ HTTPS + 已在 Apple
+      注册的域名。本地 file:// 无法使用。当前源：<code id="origin"></code>
+    </p>
+
+    <div class="panel">
+      <h2>写死参数</h2>
+      <dl class="fields">
+        <dt>verify URL</dt>
+        <dd id="cfg-url"></dd>
+        <dt>payWayCode</dt>
+        <dd id="cfg-payway"></dd>
+        <dt>channelCode</dt>
+        <dd id="cfg-channel"></dd>
+        <dt>country / currency</dt>
+        <dd id="cfg-money"></dd>
+        <dt>amount</dt>
+        <dd id="cfg-amount"></dd>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>支付</h2>
+        <span id="avail-status" class="status">检测中…</span>
+      </div>
+      <p id="avail-msg" class="note" style="margin-bottom: 12px"></p>
+      <div class="controls">
+        <apple-pay-button
+          id="pay-btn"
+          class="is-disabled"
+          buttonstyle="black"
+          type="buy"
+          locale="en-US"
+        ></apple-pay-button>
+        <button id="clear-btn" class="secondary" type="button">清空日志</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Merchant Session / Payment Token</h2>
+        <span id="detail-time" class="placeholder">尚未开始</span>
+      </div>
+      <h2>校验响应</h2>
+      <pre id="session-json" class="json placeholder">
+等待 onvalidatemerchant…</pre
+      >
+      <h2 style="margin-top: 12px">Payment Token</h2>
+      <pre id="token-json" class="json placeholder">
+等待 onpaymentauthorized…</pre
+      >
+    </div>
+
+    <div class="panel">
+      <h2>事件日志</h2>
+      <ul id="log-list">
+        <li class="placeholder">暂无日志</li>
+      </ul>
+    </div>
+
+    <script>
+      const VERIFY_URL =
+        "https://api-test.alchemytech.cc/pay/apple/domainName/verify";
+      const PAY_WAY_CODE = 501;
+      const CHANNEL_CODE = "APPLE_002";
+      const PAYMENT_REQUEST = {
+        countryCode: "US",
+        currencyCode: "USD",
+        merchantCapabilities: [
+          "supports3DS",
+          "supportsCredit",
+          "supportsDebit",
+        ],
+        supportedNetworks: ["masterCard", "visa"],
+        total: {
+          label: "ALCHEMY GPS EUROPE UAB",
+          type: "final",
+          amount: "1.00",
+        },
+      };
+
+      const originEl = document.getElementById("origin");
+      const cfgUrl = document.getElementById("cfg-url");
+      const cfgPayway = document.getElementById("cfg-payway");
+      const cfgChannel = document.getElementById("cfg-channel");
+      const cfgMoney = document.getElementById("cfg-money");
+      const cfgAmount = document.getElementById("cfg-amount");
+      const availStatus = document.getElementById("avail-status");
+      const availMsg = document.getElementById("avail-msg");
+      const payBtn = document.getElementById("pay-btn");
+      const clearBtn = document.getElementById("clear-btn");
+      const detailTime = document.getElementById("detail-time");
+      const sessionJson = document.getElementById("session-json");
+      const tokenJson = document.getElementById("token-json");
+      const logList = document.getElementById("log-list");
+
+      originEl.textContent = location.origin;
+      cfgUrl.textContent = VERIFY_URL;
+      cfgPayway.textContent = String(PAY_WAY_CODE);
+      cfgChannel.textContent = CHANNEL_CODE;
+      cfgMoney.textContent =
+        PAYMENT_REQUEST.countryCode + " / " + PAYMENT_REQUEST.currencyCode;
+      cfgAmount.textContent = PAYMENT_REQUEST.total.amount;
+
+      function now() {
+        return new Date().toLocaleTimeString("zh-CN", { hour12: false });
+      }
+
+      function pretty(value) {
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch (err) {
+          return String(value);
+        }
+      }
+
+      function appendLog(title, payload) {
+        const empty = logList.querySelector(".placeholder");
+        if (empty) empty.remove();
+        logList.querySelectorAll("li.latest").forEach(function (el) {
+          el.classList.remove("latest");
+        });
+        const li = document.createElement("li");
+        li.className = "latest";
+        const meta = document.createElement("div");
+        meta.className = "log-meta";
+        meta.textContent = now() + " · " + title;
+        const pre = document.createElement("pre");
+        pre.className = "json";
+        pre.style.maxHeight = "160px";
+        pre.style.marginTop = "4px";
+        pre.textContent = payload === undefined ? "" : pretty(payload);
+        li.appendChild(meta);
+        if (payload !== undefined) li.appendChild(pre);
+        logList.appendChild(li);
+        logList.scrollTop = logList.scrollHeight;
+      }
+
+      function setJson(el, value) {
+        el.classList.remove("placeholder");
+        el.textContent = pretty(value);
+      }
+
+      function extractMerchantSession(payload) {
+        if (payload == null) {
+          throw new Error("校验接口返回为空");
+        }
+        if (typeof payload === "string") {
+          return extractMerchantSession(JSON.parse(payload));
+        }
+        if (payload.merchantSessionIdentifier) {
+          return payload;
+        }
+        if (payload.data != null) {
+          return extractMerchantSession(payload.data);
+        }
+        if (payload.merchantSession != null) {
+          return extractMerchantSession(payload.merchantSession);
+        }
+        return payload;
+      }
+
+      function setPayEnabled(enabled) {
+        payBtn.classList.toggle("is-disabled", !enabled);
+      }
+
+      function getApplePayVersion() {
+        for (var v = 14; v >= 3; v--) {
+          if (window.ApplePaySession.supportsVersion(v)) return v;
+        }
+        return 3;
+      }
+
+      function checkAvailability() {
+        if (!window.ApplePaySession) {
+          availStatus.textContent = "不可用";
+          availStatus.className = "status bad";
+          availMsg.textContent =
+            "当前浏览器没有 ApplePaySession。请用 Safari（macOS / iOS）在 HTTPS 下打开。";
+          setPayEnabled(false);
+          appendLog("环境检测失败", {
+            applePaySession: false,
+            origin: location.origin,
+            protocol: location.protocol,
+          });
+          return false;
+        }
+
+        var canPay = ApplePaySession.canMakePayments();
+        availStatus.textContent = canPay ? "可用" : "不可支付";
+        availStatus.className = "status " + (canPay ? "ok" : "bad");
+        availMsg.textContent = canPay
+          ? "Apple Pay 可用，可点击按钮拉起支付。"
+          : "检测到 ApplePaySession，但 canMakePayments() 为 false（设备未开通 Apple Pay / 无可用卡）。";
+        setPayEnabled(canPay);
+        appendLog("环境检测", {
+          applePaySession: true,
+          version: getApplePayVersion(),
+          canMakePayments: canPay,
+          origin: location.origin,
+        });
+        return canPay;
+      }
+
+      async function verifyMerchant(validationURL) {
+        const body = {
+          validationURL: validationURL,
+          payWayCode: PAY_WAY_CODE,
+          channelCode: CHANNEL_CODE,
+        };
+        appendLog("请求域名校验", { url: VERIFY_URL, body: body });
+
+        const res = await fetch(VERIFY_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(body),
+        });
+
+        const text = await res.text();
+        let json;
+        try {
+          json = text ? JSON.parse(text) : null;
+        } catch (err) {
+          throw new Error(
+            "校验接口返回非 JSON（HTTP " + res.status + "）：" + text
+          );
+        }
+
+        appendLog("域名校验响应 HTTP " + res.status, json);
+        setJson(sessionJson, json);
+        detailTime.textContent = now();
+        detailTime.classList.remove("placeholder");
+
+        if (!res.ok) {
+          throw new Error("校验接口 HTTP " + res.status);
+        }
+        if (json && json.success === false) {
+          throw new Error(
+            json.returnMsg || json.message || "校验失败 " + json.returnCode
+          );
+        }
+
+        return extractMerchantSession(json);
+      }
+
+      function startApplePay() {
+        if (!window.ApplePaySession) {
+          appendLog("无法开始", "ApplePaySession 不存在");
+          return;
+        }
+
+        const version = getApplePayVersion();
+        const session = new ApplePaySession(version, PAYMENT_REQUEST);
+        appendLog("ApplePaySession.begin", {
+          version: version,
+          request: PAYMENT_REQUEST,
+        });
+
+        session.onvalidatemerchant = async function (event) {
+          try {
+            appendLog("onvalidatemerchant", {
+              validationURL: event.validationURL,
+            });
+            const merchantSession = await verifyMerchant(event.validationURL);
+            appendLog("completeMerchantValidation", merchantSession);
+            session.completeMerchantValidation(merchantSession);
+          } catch (err) {
+            appendLog(
+              "商户校验失败",
+              String(err && err.message ? err.message : err)
+            );
+            session.abort();
+          }
+        };
+
+        session.onpaymentauthorized = function (event) {
+          const payment = event.payment;
+          appendLog("onpaymentauthorized", payment);
+          setJson(tokenJson, payment);
+          detailTime.textContent = now();
+          session.completePayment({
+            status: ApplePaySession.STATUS_SUCCESS,
+          });
+        };
+
+        session.oncancel = function () {
+          appendLog("oncancel", "用户取消或会话中止");
+        };
+
+        session.begin();
+      }
+
+      payBtn.addEventListener("click", startApplePay);
+      clearBtn.addEventListener("click", function () {
+        logList.innerHTML = '<li class="placeholder">暂无日志</li>';
+        sessionJson.className = "json placeholder";
+        sessionJson.textContent = "等待 onvalidatemerchant…";
+        tokenJson.className = "json placeholder";
+        tokenJson.textContent = "等待 onpaymentauthorized…";
+        detailTime.className = "placeholder";
+        detailTime.textContent = "尚未开始";
+      });
+
+      checkAvailability();
+    </script>
+  </body>
+</html>
