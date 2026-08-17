@@ -304,6 +304,7 @@
         "payment-hub-token": PAYMENT_HUB_TOKEN,
         "fingerprint-id": FINGERPRINT_ID,
       };
+      let lastMerchantSession = null;
       const PAYMENT_REQUEST = {
         countryCode: "US",
         currencyCode: "USD",
@@ -377,6 +378,21 @@
           };
         }
         return err;
+      }
+
+      function serializeApplePayEvent(event) {
+        if (!event) return null;
+        const sessionError = event.sessionError || null;
+        return {
+          isTrusted: event.isTrusted,
+          type: event.type,
+          sessionError: sessionError
+            ? {
+                code: sessionError.code,
+                info: sessionError.info || {},
+              }
+            : null,
+        };
       }
 
       function pickApiMessage(json) {
@@ -753,11 +769,13 @@
           ["displayName", merchantSession.displayName],
           ["origin", location.origin],
         ]);
+        lastMerchantSession = merchantSession;
         track("domain_verify_success", merchantSession);
         return merchantSession;
       }
 
       function startApplePay() {
+        lastMerchantSession = null;
         clearError();
         setVerifyState("", "未开始");
         fillFields(verifyFields, [
@@ -867,10 +885,49 @@
         };
 
         session.oncancel = function (event) {
-          track("oncancel", {
-            message: "用户取消或会话中止（含域名校验失败后 abort）",
-            event: event || null,
-          });
+          const appleEvent = serializeApplePayEvent(event);
+          const sessionError = appleEvent && appleEvent.sessionError;
+          const sessionDomain =
+            lastMerchantSession && lastMerchantSession.domainName;
+          const pageHost = location.hostname;
+          const domainMismatch = !!(
+            sessionDomain && sessionDomain !== pageHost
+          );
+          const detail = {
+            message: domainMismatch
+              ? "Apple 关闭支付条：merchant session 域名与当前页面不一致"
+              : sessionError && sessionError.code && sessionError.code !== "userCancel"
+                ? "Apple 关闭支付条（sessionError）"
+                : "用户取消或会话中止",
+            origin: location.origin,
+            hostname: pageHost,
+            merchantSessionDomain: sessionDomain || null,
+            domainMismatch: domainMismatch,
+            sessionError: sessionError,
+            event: appleEvent,
+          };
+          track("oncancel", detail, "error");
+          showError(
+            domainMismatch ? "域名不一致，支付条已关闭" : "Apple Pay 已取消",
+            detail.message +
+              (domainMismatch
+                ? "。当前页是 " +
+                  pageHost +
+                  "，session.domainName 是 " +
+                  sessionDomain +
+                  "。"
+                : sessionError && sessionError.code
+                  ? " sessionError.code = " + sessionError.code
+                  : ""),
+            [
+              ["hostname", pageHost],
+              ["session.domainName", sessionDomain],
+              ["domainMismatch", domainMismatch],
+              ["sessionError.code", sessionError && sessionError.code],
+              ["sessionError.info", pretty(sessionError && sessionError.info)],
+            ],
+            detail
+          );
         };
 
         try {
