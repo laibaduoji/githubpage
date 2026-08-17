@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apple Pay Demo</title>
-    <script src="https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-sdk.js"></script>
+    <title>Apple Pay iframe Parent</title>
     <style>
       * {
         box-sizing: border-box;
@@ -38,61 +37,27 @@
         padding: 12px;
         margin-bottom: 12px;
       }
-      .panel h2 {
-        margin: 0 0 10px;
-        font-size: 15px;
-      }
-      .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-      }
-      .panel-header h2 {
-        margin: 0;
-      }
-      .fields {
-        display: grid;
-        grid-template-columns: 160px 1fr;
-        gap: 6px 12px;
-      }
-      .fields dt {
-        margin: 0;
-        color: #666;
-        font-weight: 500;
-      }
-      .fields dd {
-        margin: 0;
-        word-break: break-all;
-      }
-      .status {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 12px;
-        background: #eee;
-        color: #555;
-      }
-      .status.ok {
-        background: #e6f6e6;
-        color: #1a7f1a;
-      }
-      .status.bad {
-        background: #fdeaea;
-        color: #b42318;
-      }
-      .status.warn {
-        background: #fff4d6;
-        color: #8a6d00;
-      }
       .controls {
         display: flex;
         gap: 8px;
         align-items: center;
         flex-wrap: wrap;
       }
-      button {
+      .controls label {
+        flex: 1 1 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+      .controls input[type="url"] {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+      .controls button {
         padding: 8px 14px;
         border: 1px solid #333;
         border-radius: 4px;
@@ -100,904 +65,69 @@
         color: #fff;
         cursor: pointer;
         font-size: 13px;
+        white-space: nowrap;
       }
-      button.secondary {
+      .controls button:hover {
+        opacity: 0.9;
+      }
+      #apple-pay-iframe {
+        display: block;
+        width: 100%;
+        min-height: 580px;
+        height: 80vh;
+        border: 1px solid #ddd;
         background: #fff;
-        color: #1a1a1a;
-      }
-      button:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
-      apple-pay-button {
-        --apple-pay-button-width: 200px;
-        --apple-pay-button-height: 44px;
-        --apple-pay-button-border-radius: 6px;
-        --apple-pay-button-padding: 0;
-        display: inline-block;
-      }
-      apple-pay-button.is-disabled {
-        pointer-events: none;
-        opacity: 0.45;
-      }
-      pre.json {
-        margin: 0;
-        padding: 10px;
-        background: #f8f8f8;
-        border: 1px solid #eee;
-        border-radius: 4px;
-        overflow: auto;
-        max-height: 280px;
-        font-size: 12px;
-      }
-      .error-banner {
-        background: #fff5f5;
-        border: 1px solid #f5c2c2;
-        border-left: 4px solid #d92d20;
-        border-radius: 6px;
-        padding: 12px;
-        margin-bottom: 12px;
-      }
-      .error-banner[hidden] {
-        display: none;
-      }
-      .error-kicker {
-        margin: 0 0 4px;
-        font-size: 12px;
-        color: #b42318;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-      }
-      .error-title {
-        margin: 0 0 8px;
-        font-size: 16px;
-        color: #b42318;
-        font-weight: 700;
-      }
-      .error-msg {
-        margin: 0 0 10px;
-        color: #7a1c16;
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-      .error-banner .fields dd {
-        color: #7a1c16;
-      }
-      .error-banner pre.json {
-        background: #fff;
-        border-color: #f5c2c2;
-        max-height: 220px;
-      }
-      #log-list {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        max-height: 320px;
-        overflow: auto;
-      }
-      #log-list li {
-        padding: 8px 10px;
-        border-bottom: 1px solid #eee;
-        font-size: 12px;
-      }
-      #log-list li:last-child {
-        border-bottom: none;
-      }
-      #log-list li.latest {
-        background: #fff8e6;
-        border-left: 3px solid #e6a800;
-      }
-      #log-list li.error {
-        background: #fff5f5;
-        border-left: 3px solid #d92d20;
-      }
-      #log-list li.error.latest {
-        background: #fdeaea;
-      }
-      .log-meta {
-        color: #666;
-        margin-bottom: 4px;
-      }
-      #log-list li.error .log-meta {
-        color: #b42318;
-        font-weight: 600;
-      }
-      .placeholder {
-        color: #999;
-        font-style: italic;
       }
     </style>
   </head>
   <body>
-    <h1>Apple Pay Demo</h1>
+    <h1>Apple Pay iframe 父页</h1>
     <p class="intro">
-      商户 Apple Pay 测试页：点击按钮拉起系统支付；校验走
-      <code>/payment-hub/domain/verify</code>。
+      模拟商户站点用 iframe 嵌入 Ramp Apple Pay 页。Apple Pay 在 iframe
+      内执行；本页只负责提供 <code>payment</code> 权限。
     </p>
     <p class="note">
-      需 Safari（或支持 Apple Pay 的浏览器）+ HTTPS + 已在 Apple
-      注册的域名。本地 file:// 无法使用。当前源：<code id="origin"></code>
+      当前父页：<code id="origin"></code>。iframe 应对齐
+      <code>ramp-test.alchemytech.cc</code>（与 merchant session
+      <code>domainName</code> 一致）。
     </p>
 
-    <div id="error-banner" class="error-banner" hidden>
-      <p class="error-kicker" id="error-kicker">错误</p>
-      <div class="error-title" id="error-title">出错了</div>
-      <p class="error-msg" id="error-msg"></p>
-      <dl id="error-fields" class="fields"></dl>
-      <pre id="error-json" class="json"></pre>
-    </div>
-
     <div class="panel">
-      <h2>写死参数</h2>
-      <dl class="fields">
-        <dt>verify URL</dt>
-        <dd id="cfg-url"></dd>
-        <dt>payment-hub-token</dt>
-        <dd id="cfg-token"></dd>
-        <dt>fingerprint-id</dt>
-        <dd id="cfg-fingerprint"></dd>
-        <dt>payWayCode</dt>
-        <dd id="cfg-payway"></dd>
-        <dt>channelCode</dt>
-        <dd id="cfg-channel"></dd>
-        <dt>country / currency</dt>
-        <dd id="cfg-money"></dd>
-        <dt>amount</dt>
-        <dd id="cfg-amount"></dd>
-      </dl>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <h2>支付</h2>
-        <span id="avail-status" class="status">检测中…</span>
-      </div>
-      <p id="avail-msg" class="note" style="margin-bottom: 12px"></p>
       <div class="controls">
-        <apple-pay-button
-          id="pay-btn"
-          class="is-disabled"
-          buttonstyle="black"
-          type="buy"
-          locale="en-US"
-        ></apple-pay-button>
-        <button id="clear-btn" class="secondary" type="button">清空日志</button>
+        <label>
+          iframe URL
+          <input
+            id="url-input"
+            type="url"
+            value="https://ramp-test.alchemytech.cc/demo/apple-pay-demo.html"
+          />
+        </label>
+        <button id="load-btn" type="button">加载 / 打开</button>
       </div>
     </div>
 
-    <div class="panel">
-      <div class="panel-header">
-        <h2>域名校验</h2>
-        <span id="verify-status" class="status">未开始</span>
-      </div>
-      <dl id="verify-fields" class="fields">
-        <dt>结果</dt>
-        <dd id="verify-result" class="placeholder">等待点击 Apple Pay</dd>
-      </dl>
-      <h2 style="margin-top: 12px">校验响应</h2>
-      <pre id="session-json" class="json placeholder">等待 onvalidatemerchant…</pre>
-      <h2 style="margin-top: 12px">Payment Token</h2>
-      <pre id="token-json" class="json placeholder">等待 onpaymentauthorized…</pre>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <h2>事件埋点</h2>
-        <span id="detail-time" class="placeholder">尚未开始</span>
-      </div>
-      <ul id="log-list">
-        <li class="placeholder">暂无埋点</li>
-      </ul>
-    </div>
+    <iframe
+      id="apple-pay-iframe"
+      title="Apple Pay Demo"
+      src="https://ramp-test.alchemytech.cc/demo/apple-pay-demo.html"
+      allow="payment; camera; microphone; clipboard-read; clipboard-write"
+      allowpaymentrequest
+    ></iframe>
 
     <script>
-      const VERIFY_URL =
-        "https://api-test.alchemytech.cc/payment-hub/domain/verify";
-      const PAYMENT_HUB_TOKEN =
-        "eyJhbGciOiJIUzI1NiJ9.eyJwYXlsb2FkIjoie1wib3JkZXJOb1wiOlwiMTUzODgzMDI4MjA3MDkyMTIxNlwiLFwiYXBwSWRcIjpcImFoenhoMGtsZWd2MWZ6b2xcIixcInVzZXJJZFwiOjIwNjg3LFwiY3VycmVuY3lcIjpcIlVTRFwiLFwicGF5V2F5Q29kZVwiOlwiNzAxXCJ9IiwiaXNzIjoiYWxjaGVteS1wYXktb24vb2ZmLXJhbXAiLCJleHAiOjE3ODY5NTY3MjksImlhdCI6MTc4Njk1NjEyOX0.BlLJVnfCHSTJviRumS1tiZyDzZuIN9IXUP-r0x8tKgs";
-      const FINGERPRINT_ID = "eC05Lc7TSGfdKSHaYyRy";
-      const PAY_WAY_CODE = 501;
-      const CHANNEL_CODE = "APPLE_002";
-      const VERIFY_HEADERS = {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "payment-hub-token": PAYMENT_HUB_TOKEN,
-        "fingerprint-id": FINGERPRINT_ID,
-      };
-      let lastMerchantSession = null;
-      const PAYMENT_REQUEST = {
-        countryCode: "US",
-        currencyCode: "USD",
-        merchantCapabilities: [
-          "supports3DS",
-          "supportsCredit",
-          "supportsDebit",
-        ],
-        supportedNetworks: ["masterCard", "visa"],
-        total: {
-          label: "ALCHEMY GPS EUROPE UAB",
-          type: "final",
-          amount: "1.00",
-        },
-      };
-
-      const originEl = document.getElementById("origin");
-      const cfgUrl = document.getElementById("cfg-url");
-      const cfgToken = document.getElementById("cfg-token");
-      const cfgFingerprint = document.getElementById("cfg-fingerprint");
-      const cfgPayway = document.getElementById("cfg-payway");
-      const cfgChannel = document.getElementById("cfg-channel");
-      const cfgMoney = document.getElementById("cfg-money");
-      const cfgAmount = document.getElementById("cfg-amount");
-      const availStatus = document.getElementById("avail-status");
-      const availMsg = document.getElementById("avail-msg");
-      const payBtn = document.getElementById("pay-btn");
-      const clearBtn = document.getElementById("clear-btn");
-      const detailTime = document.getElementById("detail-time");
-      const sessionJson = document.getElementById("session-json");
-      const tokenJson = document.getElementById("token-json");
-      const logList = document.getElementById("log-list");
-      const errorBanner = document.getElementById("error-banner");
-      const errorKicker = document.getElementById("error-kicker");
-      const errorTitle = document.getElementById("error-title");
-      const errorMsg = document.getElementById("error-msg");
-      const errorFields = document.getElementById("error-fields");
-      const errorJson = document.getElementById("error-json");
-      const verifyStatus = document.getElementById("verify-status");
-      const verifyResult = document.getElementById("verify-result");
-      const verifyFields = document.getElementById("verify-fields");
+      var DEFAULT_URL =
+        "https://ramp-test.alchemytech.cc/demo/apple-pay-demo.html";
+      var originEl = document.getElementById("origin");
+      var urlInput = document.getElementById("url-input");
+      var loadBtn = document.getElementById("load-btn");
+      var iframe = document.getElementById("apple-pay-iframe");
 
       originEl.textContent = location.origin;
-      cfgUrl.textContent = VERIFY_URL;
-      cfgToken.textContent = PAYMENT_HUB_TOKEN;
-      cfgFingerprint.textContent = FINGERPRINT_ID;
-      cfgPayway.textContent = String(PAY_WAY_CODE);
-      cfgChannel.textContent = CHANNEL_CODE;
-      cfgMoney.textContent =
-        PAYMENT_REQUEST.countryCode + " / " + PAYMENT_REQUEST.currencyCode;
-      cfgAmount.textContent = PAYMENT_REQUEST.total.amount;
 
-      function now() {
-        return new Date().toLocaleTimeString("zh-CN", { hour12: false });
-      }
-
-      function pretty(value) {
-        try {
-          return JSON.stringify(value, null, 2);
-        } catch (err) {
-          return String(value);
-        }
-      }
-
-      function serializeError(err) {
-        if (err instanceof Error) {
-          return {
-            name: err.name,
-            message: err.message,
-            stack: err.stack,
-          };
-        }
-        return err;
-      }
-
-      function serializeApplePayEvent(event) {
-        if (!event) return null;
-        const sessionError = event.sessionError || null;
-        return {
-          isTrusted: event.isTrusted,
-          type: event.type,
-          sessionError: sessionError
-            ? {
-                code: sessionError.code,
-                info: sessionError.info || {},
-              }
-            : null,
-        };
-      }
-
-      function pickApiMessage(json) {
-        if (!json || typeof json !== "object") return "";
-        return (
-          json.returnMsg ||
-          json.message ||
-          json.msg ||
-          json.errorMsg ||
-          json.error ||
-          ""
-        );
-      }
-
-      function setJson(el, value) {
-        el.classList.remove("placeholder");
-        el.textContent = pretty(value);
-      }
-
-      function fillFields(dl, rows) {
-        dl.innerHTML = "";
-        rows.forEach(function (row) {
-          const dt = document.createElement("dt");
-          dt.textContent = row[0];
-          const dd = document.createElement("dd");
-          dd.textContent = row[1] == null || row[1] === "" ? "—" : String(row[1]);
-          dl.appendChild(dt);
-          dl.appendChild(dd);
-        });
-      }
-
-      function setVerifyState(kind, text) {
-        verifyStatus.textContent = text;
-        verifyStatus.className =
-          "status" +
-          (kind === "ok" ? " ok" : kind === "bad" ? " bad" : kind === "warn" ? " warn" : "");
-      }
-
-      function showError(title, summary, fields, raw) {
-        errorBanner.hidden = false;
-        errorKicker.textContent = "错误";
-        errorTitle.textContent = title;
-        errorMsg.textContent = summary || "";
-        fillFields(errorFields, fields || []);
-        errorJson.textContent = raw === undefined ? "" : pretty(raw);
-        errorBanner.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
-      function showDomainVerifyFail(detail) {
-        const summary =
-          detail.returnMsg ||
-          detail.message ||
-          detail.reason ||
-          "域名校验未通过";
-        setVerifyState("bad", "未通过");
-        fillFields(verifyFields, [
-          ["结果", summary],
-          ["阶段", detail.stage || "—"],
-          ["HTTP", detail.httpStatus == null ? "—" : detail.httpStatus],
-          ["returnCode", detail.returnCode],
-          ["returnMsg", detail.returnMsg],
-          ["traceId", detail.traceId],
-          ["origin", detail.origin || location.origin],
-          ["validationURL", detail.validationURL],
-        ]);
-        if (detail.response != null) {
-          setJson(sessionJson, detail.response);
-        } else if (detail.rawText != null) {
-          sessionJson.classList.remove("placeholder");
-          sessionJson.textContent = String(detail.rawText);
-        }
-        showError("域名校验未通过", summary, [
-          ["阶段", detail.stage],
-          ["HTTP", detail.httpStatus],
-          ["returnCode", detail.returnCode],
-          ["returnMsg", detail.returnMsg],
-          ["traceId", detail.traceId],
-          ["原因", detail.reason],
-          ["origin", detail.origin || location.origin],
-          ["validationURL", detail.validationURL],
-        ], detail);
-        detailTime.textContent = now();
-        detailTime.classList.remove("placeholder");
-      }
-
-      function clearError() {
-        errorBanner.hidden = true;
-        errorTitle.textContent = "出错了";
-        errorMsg.textContent = "";
-        errorFields.innerHTML = "";
-        errorJson.textContent = "";
-      }
-
-      function track(event, payload, level) {
-        const empty = logList.querySelector(".placeholder");
-        if (empty) empty.remove();
-        logList.querySelectorAll("li.latest").forEach(function (el) {
-          el.classList.remove("latest");
-        });
-        const li = document.createElement("li");
-        li.className = level === "error" ? "latest error" : "latest";
-        const meta = document.createElement("div");
-        meta.className = "log-meta";
-        meta.textContent =
-          now() + " · " + event + (level === "error" ? "  [error]" : "");
-        li.appendChild(meta);
-        if (payload !== undefined) {
-          const pre = document.createElement("pre");
-          pre.className = "json";
-          pre.style.maxHeight = "160px";
-          pre.style.marginTop = "4px";
-          pre.textContent = pretty(payload);
-          li.appendChild(pre);
-        }
-        logList.appendChild(li);
-        logList.scrollTop = logList.scrollHeight;
-        detailTime.textContent = now();
-        detailTime.classList.remove("placeholder");
-        console[level === "error" ? "error" : "log"]("[ApplePay]", event, payload);
-      }
-
-      function extractMerchantSession(payload) {
-        if (payload == null) {
-          throw new Error("校验接口返回为空");
-        }
-        if (typeof payload === "string") {
-          return extractMerchantSession(JSON.parse(payload));
-        }
-        if (payload.merchantSessionIdentifier) {
-          return payload;
-        }
-        if (payload.data != null) {
-          return extractMerchantSession(payload.data);
-        }
-        if (payload.merchantSession != null) {
-          return extractMerchantSession(payload.merchantSession);
-        }
-        return payload;
-      }
-
-      function setPayEnabled(enabled) {
-        payBtn.classList.toggle("is-disabled", !enabled);
-      }
-
-      function getApplePayVersion() {
-        for (var v = 14; v >= 3; v--) {
-          if (window.ApplePaySession.supportsVersion(v)) return v;
-        }
-        return 3;
-      }
-
-      function checkAvailability() {
-        track("page_view", {
-          origin: location.origin,
-          href: location.href,
-          protocol: location.protocol,
-          userAgent: navigator.userAgent,
-        });
-
-        if (!window.ApplePaySession) {
-          availStatus.textContent = "不可用";
-          availStatus.className = "status bad";
-          availMsg.textContent =
-            "当前浏览器没有 ApplePaySession。请用 Safari（macOS / iOS）在 HTTPS 下打开。";
-          setPayEnabled(false);
-          const detail = {
-            applePaySession: false,
-            origin: location.origin,
-            protocol: location.protocol,
-            message: "当前浏览器没有 ApplePaySession",
-          };
-          track("applepay_unavailable", detail, "error");
-          showError(
-            "Apple Pay 不可用",
-            detail.message,
-            [
-              ["origin", location.origin],
-              ["protocol", location.protocol],
-            ],
-            detail
-          );
-          return false;
-        }
-
-        var canPay = ApplePaySession.canMakePayments();
-        availStatus.textContent = canPay ? "可用" : "不可支付";
-        availStatus.className = "status " + (canPay ? "ok" : "bad");
-        availMsg.textContent = canPay
-          ? "Apple Pay 可用，可点击按钮拉起支付。"
-          : "检测到 ApplePaySession，但 canMakePayments() 为 false（设备未开通 Apple Pay / 无可用卡）。";
-        setPayEnabled(canPay);
-        const env = {
-          applePaySession: true,
-          version: getApplePayVersion(),
-          canMakePayments: canPay,
-          origin: location.origin,
-        };
-        if (canPay) {
-          track("applepay_available", env);
-        } else {
-          track("applepay_unavailable", env, "error");
-          showError(
-            "Apple Pay 不可支付",
-            "canMakePayments() 为 false：设备未开通 Apple Pay，或没有可用卡。",
-            [
-              ["version", env.version],
-              ["origin", location.origin],
-            ],
-            env
-          );
-        }
-        return canPay;
-      }
-
-      async function verifyMerchant(validationURL) {
-        const body = {
-          validationURL: validationURL,
-          payWayCode: PAY_WAY_CODE,
-          channelCode: CHANNEL_CODE,
-        };
-        setVerifyState("warn", "校验中");
-        fillFields(verifyFields, [
-          ["结果", "请求中…"],
-          ["origin", location.origin],
-          ["validationURL", validationURL],
-          ["payWayCode", PAY_WAY_CODE],
-          ["channelCode", CHANNEL_CODE],
-        ]);
-        track("domain_verify_request", {
-          url: VERIFY_URL,
-          origin: location.origin,
-          headers: {
-            "payment-hub-token": PAYMENT_HUB_TOKEN,
-            "fingerprint-id": FINGERPRINT_ID,
-          },
-          body: body,
-        });
-
-        let res;
-        try {
-          res = await fetch(VERIFY_URL, {
-            method: "POST",
-            headers: VERIFY_HEADERS,
-            body: JSON.stringify(body),
-          });
-        } catch (err) {
-          const fail = {
-            stage: "fetch",
-            reason: "网络错误或 CORS 拦截，请求未到达或浏览器拦截了响应",
-            message: err && err.message ? err.message : String(err),
-            name: err && err.name,
-            url: VERIFY_URL,
-            origin: location.origin,
-            validationURL: validationURL,
-            request: body,
-            error: serializeError(err),
-          };
-          track("domain_verify_fail", fail, "error");
-          showDomainVerifyFail(fail);
-          throw err;
-        }
-
-        const text = await res.text();
-        let json = null;
-        try {
-          json = text ? JSON.parse(text) : null;
-        } catch (err) {
-          const fail = {
-            stage: "parse",
-            reason: "校验接口返回非 JSON",
-            message: err.message,
-            httpStatus: res.status,
-            url: VERIFY_URL,
-            origin: location.origin,
-            validationURL: validationURL,
-            request: body,
-            rawText: text,
-          };
-          track("domain_verify_fail", fail, "error");
-          showDomainVerifyFail(fail);
-          throw err;
-        }
-
-        track("domain_verify_response", {
-          httpStatus: res.status,
-          ok: res.ok,
-          body: json,
-        });
-        setJson(sessionJson, json);
-        detailTime.textContent = now();
-        detailTime.classList.remove("placeholder");
-
-        const apiMsg = pickApiMessage(json);
-        const failedByHttp = !res.ok;
-        const returnCode = json && String(json.returnCode == null ? "" : json.returnCode);
-        const isSuccessCode =
-          returnCode === "0000" ||
-          returnCode === "00000" ||
-          returnCode === "0";
-        const failedByBiz =
-          json &&
-          (json.success === false || (returnCode && !isSuccessCode));
-
-        if (failedByHttp || failedByBiz) {
-          const fail = {
-            stage: failedByHttp ? "http" : "business",
-            reason: failedByHttp
-              ? "校验接口 HTTP " + res.status
-              : "校验接口业务失败",
-            httpStatus: res.status,
-            returnCode: json && json.returnCode,
-            returnMsg: apiMsg,
-            traceId: json && (json.traceId || json.traceID),
-            extend: json && json.extend,
-            url: VERIFY_URL,
-            origin: location.origin,
-            validationURL: validationURL,
-            request: body,
-            response: json,
-          };
-          track("domain_verify_fail", fail, "error");
-          showDomainVerifyFail(fail);
-          throw new Error(apiMsg || fail.reason);
-        }
-
-        let merchantSession;
-        try {
-          merchantSession = extractMerchantSession(json);
-        } catch (err) {
-          const fail = {
-            stage: "extract",
-            reason: "无法从校验响应中解析 merchant session",
-            message: err.message,
-            httpStatus: res.status,
-            returnCode: json && json.returnCode,
-            returnMsg: apiMsg,
-            traceId: json && json.traceId,
-            url: VERIFY_URL,
-            origin: location.origin,
-            validationURL: validationURL,
-            request: body,
-            response: json,
-          };
-          track("domain_verify_fail", fail, "error");
-          showDomainVerifyFail(fail);
-          throw err;
-        }
-
-        if (!merchantSession || !merchantSession.merchantSessionIdentifier) {
-          const fail = {
-            stage: "extract",
-            reason: "校验响应缺少 merchantSessionIdentifier，域名校验未真正通过",
-            httpStatus: res.status,
-            returnCode: json && json.returnCode,
-            returnMsg: apiMsg,
-            traceId: json && json.traceId,
-            url: VERIFY_URL,
-            origin: location.origin,
-            validationURL: validationURL,
-            request: body,
-            response: json,
-            merchantSession: merchantSession,
-          };
-          track("domain_verify_fail", fail, "error");
-          showDomainVerifyFail(fail);
-          throw new Error(fail.reason);
-        }
-
-        setVerifyState("ok", "通过");
-        fillFields(verifyFields, [
-          ["结果", "域名校验通过"],
-          ["merchantSessionIdentifier", merchantSession.merchantSessionIdentifier],
-          ["domainName", merchantSession.domainName],
-          ["displayName", merchantSession.displayName],
-          ["origin", location.origin],
-        ]);
-        lastMerchantSession = merchantSession;
-        track("domain_verify_success", merchantSession);
-        return merchantSession;
-      }
-
-      function startApplePay() {
-        lastMerchantSession = null;
-        clearError();
-        setVerifyState("", "未开始");
-        fillFields(verifyFields, [
-          ["结果", "等待 onvalidatemerchant"],
-        ]);
-        sessionJson.className = "json placeholder";
-        sessionJson.textContent = "等待 onvalidatemerchant…";
-        tokenJson.className = "json placeholder";
-        tokenJson.textContent = "等待 onpaymentauthorized…";
-
-        track("applepay_click", {
-          origin: location.origin,
-          request: PAYMENT_REQUEST,
-        });
-
-        if (!window.ApplePaySession) {
-          const detail = { message: "ApplePaySession 不存在" };
-          track("applepay_error", detail, "error");
-          showError("无法开始支付", detail.message, [["origin", location.origin]], detail);
-          return;
-        }
-
-        const version = getApplePayVersion();
-        let session;
-        try {
-          session = new ApplePaySession(version, PAYMENT_REQUEST);
-        } catch (err) {
-          const detail = {
-            stage: "create_session",
-            version: version,
-            request: PAYMENT_REQUEST,
-            error: serializeError(err),
-          };
-          track("applepay_error", detail, "error");
-          showError(
-            "创建 ApplePaySession 失败",
-            err.message || String(err),
-            [
-              ["version", version],
-              ["origin", location.origin],
-            ],
-            detail
-          );
-          return;
-        }
-
-        track("applepay_session_created", {
-          version: version,
-          request: PAYMENT_REQUEST,
-        });
-
-        session.onvalidatemerchant = async function (event) {
-          track("onvalidatemerchant", {
-            validationURL: event.validationURL,
-            origin: location.origin,
-          });
-          try {
-            const merchantSession = await verifyMerchant(event.validationURL);
-            try {
-              session.completeMerchantValidation(merchantSession);
-              track("complete_merchant_validation", {
-                merchantSessionIdentifier:
-                  merchantSession.merchantSessionIdentifier,
-              });
-            } catch (err) {
-              const fail = {
-                stage: "completeMerchantValidation",
-                reason: "completeMerchantValidation 抛错，merchant session 可能无效",
-                message: err.message,
-                origin: location.origin,
-                validationURL: event.validationURL,
-                merchantSession: merchantSession,
-                error: serializeError(err),
-              };
-              track("domain_verify_fail", fail, "error");
-              showDomainVerifyFail(fail);
-              session.abort();
-            }
-          } catch (err) {
-            track("onvalidatemerchant_error", serializeError(err), "error");
-            try {
-              session.abort();
-            } catch (abortErr) {
-              track("session_abort_error", serializeError(abortErr), "error");
-            }
-          }
-        };
-
-        session.onpaymentauthorized = function (event) {
-          const payment = event.payment;
-          track("onpaymentauthorized", payment);
-          setJson(tokenJson, payment);
-          try {
-            session.completePayment({
-              status: ApplePaySession.STATUS_SUCCESS,
-            });
-            track("complete_payment", { status: "STATUS_SUCCESS" });
-          } catch (err) {
-            track("complete_payment_error", serializeError(err), "error");
-            showError(
-              "completePayment 失败",
-              err.message || String(err),
-              [],
-              serializeError(err)
-            );
-          }
-        };
-
-        session.oncancel = function (event) {
-          const appleEvent = serializeApplePayEvent(event);
-          const sessionError = appleEvent && appleEvent.sessionError;
-          const sessionDomain =
-            lastMerchantSession && lastMerchantSession.domainName;
-          const pageHost = location.hostname;
-          const domainMismatch = !!(
-            sessionDomain && sessionDomain !== pageHost
-          );
-          const detail = {
-            message: domainMismatch
-              ? "Apple 关闭支付条：merchant session 域名与当前页面不一致"
-              : sessionError && sessionError.code && sessionError.code !== "userCancel"
-                ? "Apple 关闭支付条（sessionError）"
-                : "用户取消或会话中止",
-            origin: location.origin,
-            hostname: pageHost,
-            merchantSessionDomain: sessionDomain || null,
-            domainMismatch: domainMismatch,
-            sessionError: sessionError,
-            event: appleEvent,
-          };
-          track("oncancel", detail, "error");
-          showError(
-            domainMismatch ? "域名不一致，支付条已关闭" : "Apple Pay 已取消",
-            detail.message +
-              (domainMismatch
-                ? "。当前页是 " +
-                  pageHost +
-                  "，session.domainName 是 " +
-                  sessionDomain +
-                  "。"
-                : sessionError && sessionError.code
-                  ? " sessionError.code = " + sessionError.code
-                  : ""),
-            [
-              ["hostname", pageHost],
-              ["session.domainName", sessionDomain],
-              ["domainMismatch", domainMismatch],
-              ["sessionError.code", sessionError && sessionError.code],
-              ["sessionError.info", pretty(sessionError && sessionError.info)],
-            ],
-            detail
-          );
-        };
-
-        try {
-          session.begin();
-          track("applepay_begin", { version: version });
-        } catch (err) {
-          const detail = {
-            stage: "begin",
-            message: err.message,
-            error: serializeError(err),
-          };
-          track("applepay_error", detail, "error");
-          showError(
-            "ApplePaySession.begin 失败",
-            err.message || String(err),
-            [["origin", location.origin]],
-            detail
-          );
-        }
-      }
-
-      payBtn.addEventListener("click", startApplePay);
-      clearBtn.addEventListener("click", function () {
-        logList.innerHTML = '<li class="placeholder">暂无埋点</li>';
-        sessionJson.className = "json placeholder";
-        sessionJson.textContent = "等待 onvalidatemerchant…";
-        tokenJson.className = "json placeholder";
-        tokenJson.textContent = "等待 onpaymentauthorized…";
-        detailTime.className = "placeholder";
-        detailTime.textContent = "尚未开始";
-        setVerifyState("", "未开始");
-        fillFields(verifyFields, [["结果", "等待点击 Apple Pay"]]);
-        verifyResult.className = "placeholder";
-        clearError();
+      loadBtn.addEventListener("click", function () {
+        var url = (urlInput.value || DEFAULT_URL).trim();
+        iframe.src = url;
       });
-
-      window.addEventListener("error", function (event) {
-        const detail = {
-          message: event.message,
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno,
-          error: serializeError(event.error),
-        };
-        track("window_error", detail, "error");
-        showError(
-          "页面脚本错误",
-          event.message || "未知脚本错误",
-          [
-            ["filename", event.filename],
-            ["line", event.lineno],
-          ],
-          detail
-        );
-      });
-
-      window.addEventListener("unhandledrejection", function (event) {
-        const detail = {
-          reason: serializeError(event.reason),
-        };
-        track("unhandled_rejection", detail, "error");
-        showError(
-          "未处理的 Promise 错误",
-          (event.reason && event.reason.message) || String(event.reason),
-          [],
-          detail
-        );
-      });
-
-      checkAvailability();
     </script>
   </body>
 </html>
