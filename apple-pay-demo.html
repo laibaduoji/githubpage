@@ -212,7 +212,7 @@
     <h1>Apple Pay Demo</h1>
     <p class="intro">
       商户 Apple Pay 测试页：点击按钮拉起系统支付；校验走
-      <code>/pay/apple/domainName/verify</code>。
+      <code>/payment-hub/domain/verify</code>。
     </p>
     <p class="note">
       需 Safari（或支持 Apple Pay 的浏览器）+ HTTPS + 已在 Apple
@@ -232,6 +232,10 @@
       <dl class="fields">
         <dt>verify URL</dt>
         <dd id="cfg-url"></dd>
+        <dt>payment-hub-token</dt>
+        <dd id="cfg-token"></dd>
+        <dt>fingerprint-id</dt>
+        <dd id="cfg-fingerprint"></dd>
         <dt>payWayCode</dt>
         <dd id="cfg-payway"></dd>
         <dt>channelCode</dt>
@@ -288,9 +292,18 @@
 
     <script>
       const VERIFY_URL =
-        "https://api-test.alchemytech.cc/pay/apple/domainName/verify";
+        "https://api-test.alchemytech.cc/payment-hub/domain/verify";
+      const PAYMENT_HUB_TOKEN =
+        "eyJhbGciOiJIUzI1NiJ9.eyJwYXlsb2FkIjoie1wib3JkZXJOb1wiOlwiMTUzODgyNjIxMzQ3NDQwNjQwMFwiLFwiYXBwSWRcIjpcImFoenhoMGtsZWd2MWZ6b2xcIixcInVzZXJJZFwiOjIwNjYwLFwiY3VycmVuY3lcIjpcIlVTRFwiLFwicGF5V2F5Q29kZVwiOlwiNTAxXCJ9IiwiaXNzIjoiYWxjaGVteS1wYXktb24vb2ZmLXJhbXAiLCJleHAiOjE3ODY5NTU3NTksImlhdCI6MTc4Njk1NTE1OX0.51lcaNBzdo-kICUiWkBlhel7XOv7MZgDe1-BVhRYlxQ";
+      const FINGERPRINT_ID = "eC05Lc7TSGfdKSHaYyRy";
       const PAY_WAY_CODE = 501;
       const CHANNEL_CODE = "APPLE_002";
+      const VERIFY_HEADERS = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "payment-hub-token": PAYMENT_HUB_TOKEN,
+        "fingerprint-id": FINGERPRINT_ID,
+      };
       const PAYMENT_REQUEST = {
         countryCode: "US",
         currencyCode: "USD",
@@ -309,6 +322,8 @@
 
       const originEl = document.getElementById("origin");
       const cfgUrl = document.getElementById("cfg-url");
+      const cfgToken = document.getElementById("cfg-token");
+      const cfgFingerprint = document.getElementById("cfg-fingerprint");
       const cfgPayway = document.getElementById("cfg-payway");
       const cfgChannel = document.getElementById("cfg-channel");
       const cfgMoney = document.getElementById("cfg-money");
@@ -333,6 +348,8 @@
 
       originEl.textContent = location.origin;
       cfgUrl.textContent = VERIFY_URL;
+      cfgToken.textContent = PAYMENT_HUB_TOKEN;
+      cfgFingerprint.textContent = FINGERPRINT_ID;
       cfgPayway.textContent = String(PAY_WAY_CODE);
       cfgChannel.textContent = CHANNEL_CODE;
       cfgMoney.textContent =
@@ -591,6 +608,10 @@
         track("domain_verify_request", {
           url: VERIFY_URL,
           origin: location.origin,
+          headers: {
+            "payment-hub-token": PAYMENT_HUB_TOKEN,
+            "fingerprint-id": FINGERPRINT_ID,
+          },
           body: body,
         });
 
@@ -598,10 +619,7 @@
         try {
           res = await fetch(VERIFY_URL, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
+            headers: VERIFY_HEADERS,
             body: JSON.stringify(body),
           });
         } catch (err) {
