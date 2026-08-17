@@ -82,6 +82,10 @@
         background: #fdeaea;
         color: #b42318;
       }
+      .status.warn {
+        background: #fff4d6;
+        color: #8a6d00;
+      }
       .controls {
         display: flex;
         gap: 8px;
@@ -126,11 +130,49 @@
         max-height: 280px;
         font-size: 12px;
       }
+      .error-banner {
+        background: #fff5f5;
+        border: 1px solid #f5c2c2;
+        border-left: 4px solid #d92d20;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+      .error-banner[hidden] {
+        display: none;
+      }
+      .error-kicker {
+        margin: 0 0 4px;
+        font-size: 12px;
+        color: #b42318;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .error-title {
+        margin: 0 0 8px;
+        font-size: 16px;
+        color: #b42318;
+        font-weight: 700;
+      }
+      .error-msg {
+        margin: 0 0 10px;
+        color: #7a1c16;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .error-banner .fields dd {
+        color: #7a1c16;
+      }
+      .error-banner pre.json {
+        background: #fff;
+        border-color: #f5c2c2;
+        max-height: 220px;
+      }
       #log-list {
         margin: 0;
         padding: 0;
         list-style: none;
-        max-height: 240px;
+        max-height: 320px;
         overflow: auto;
       }
       #log-list li {
@@ -145,9 +187,20 @@
         background: #fff8e6;
         border-left: 3px solid #e6a800;
       }
+      #log-list li.error {
+        background: #fff5f5;
+        border-left: 3px solid #d92d20;
+      }
+      #log-list li.error.latest {
+        background: #fdeaea;
+      }
       .log-meta {
         color: #666;
         margin-bottom: 4px;
+      }
+      #log-list li.error .log-meta {
+        color: #b42318;
+        font-weight: 600;
       }
       .placeholder {
         color: #999;
@@ -165,6 +218,14 @@
       需 Safari（或支持 Apple Pay 的浏览器）+ HTTPS + 已在 Apple
       注册的域名。本地 file:// 无法使用。当前源：<code id="origin"></code>
     </p>
+
+    <div id="error-banner" class="error-banner" hidden>
+      <p class="error-kicker" id="error-kicker">错误</p>
+      <div class="error-title" id="error-title">出错了</div>
+      <p class="error-msg" id="error-msg"></p>
+      <dl id="error-fields" class="fields"></dl>
+      <pre id="error-json" class="json"></pre>
+    </div>
 
     <div class="panel">
       <h2>写死参数</h2>
@@ -202,23 +263,26 @@
 
     <div class="panel">
       <div class="panel-header">
-        <h2>Merchant Session / Payment Token</h2>
-        <span id="detail-time" class="placeholder">尚未开始</span>
+        <h2>域名校验</h2>
+        <span id="verify-status" class="status">未开始</span>
       </div>
-      <h2>校验响应</h2>
-      <pre id="session-json" class="json placeholder">
-等待 onvalidatemerchant…</pre
-      >
+      <dl id="verify-fields" class="fields">
+        <dt>结果</dt>
+        <dd id="verify-result" class="placeholder">等待点击 Apple Pay</dd>
+      </dl>
+      <h2 style="margin-top: 12px">校验响应</h2>
+      <pre id="session-json" class="json placeholder">等待 onvalidatemerchant…</pre>
       <h2 style="margin-top: 12px">Payment Token</h2>
-      <pre id="token-json" class="json placeholder">
-等待 onpaymentauthorized…</pre
-      >
+      <pre id="token-json" class="json placeholder">等待 onpaymentauthorized…</pre>
     </div>
 
     <div class="panel">
-      <h2>事件日志</h2>
+      <div class="panel-header">
+        <h2>事件埋点</h2>
+        <span id="detail-time" class="placeholder">尚未开始</span>
+      </div>
       <ul id="log-list">
-        <li class="placeholder">暂无日志</li>
+        <li class="placeholder">暂无埋点</li>
       </ul>
     </div>
 
@@ -257,6 +321,15 @@
       const sessionJson = document.getElementById("session-json");
       const tokenJson = document.getElementById("token-json");
       const logList = document.getElementById("log-list");
+      const errorBanner = document.getElementById("error-banner");
+      const errorKicker = document.getElementById("error-kicker");
+      const errorTitle = document.getElementById("error-title");
+      const errorMsg = document.getElementById("error-msg");
+      const errorFields = document.getElementById("error-fields");
+      const errorJson = document.getElementById("error-json");
+      const verifyStatus = document.getElementById("verify-status");
+      const verifyResult = document.getElementById("verify-result");
+      const verifyFields = document.getElementById("verify-fields");
 
       originEl.textContent = location.origin;
       cfgUrl.textContent = VERIFY_URL;
@@ -278,31 +351,134 @@
         }
       }
 
-      function appendLog(title, payload) {
+      function serializeError(err) {
+        if (err instanceof Error) {
+          return {
+            name: err.name,
+            message: err.message,
+            stack: err.stack,
+          };
+        }
+        return err;
+      }
+
+      function pickApiMessage(json) {
+        if (!json || typeof json !== "object") return "";
+        return (
+          json.returnMsg ||
+          json.message ||
+          json.msg ||
+          json.errorMsg ||
+          json.error ||
+          ""
+        );
+      }
+
+      function setJson(el, value) {
+        el.classList.remove("placeholder");
+        el.textContent = pretty(value);
+      }
+
+      function fillFields(dl, rows) {
+        dl.innerHTML = "";
+        rows.forEach(function (row) {
+          const dt = document.createElement("dt");
+          dt.textContent = row[0];
+          const dd = document.createElement("dd");
+          dd.textContent = row[1] == null || row[1] === "" ? "—" : String(row[1]);
+          dl.appendChild(dt);
+          dl.appendChild(dd);
+        });
+      }
+
+      function setVerifyState(kind, text) {
+        verifyStatus.textContent = text;
+        verifyStatus.className =
+          "status" +
+          (kind === "ok" ? " ok" : kind === "bad" ? " bad" : kind === "warn" ? " warn" : "");
+      }
+
+      function showError(title, summary, fields, raw) {
+        errorBanner.hidden = false;
+        errorKicker.textContent = "错误";
+        errorTitle.textContent = title;
+        errorMsg.textContent = summary || "";
+        fillFields(errorFields, fields || []);
+        errorJson.textContent = raw === undefined ? "" : pretty(raw);
+        errorBanner.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function showDomainVerifyFail(detail) {
+        const summary =
+          detail.returnMsg ||
+          detail.message ||
+          detail.reason ||
+          "域名校验未通过";
+        setVerifyState("bad", "未通过");
+        fillFields(verifyFields, [
+          ["结果", summary],
+          ["阶段", detail.stage || "—"],
+          ["HTTP", detail.httpStatus == null ? "—" : detail.httpStatus],
+          ["returnCode", detail.returnCode],
+          ["returnMsg", detail.returnMsg],
+          ["traceId", detail.traceId],
+          ["origin", detail.origin || location.origin],
+          ["validationURL", detail.validationURL],
+        ]);
+        if (detail.response != null) {
+          setJson(sessionJson, detail.response);
+        } else if (detail.rawText != null) {
+          sessionJson.classList.remove("placeholder");
+          sessionJson.textContent = String(detail.rawText);
+        }
+        showError("域名校验未通过", summary, [
+          ["阶段", detail.stage],
+          ["HTTP", detail.httpStatus],
+          ["returnCode", detail.returnCode],
+          ["returnMsg", detail.returnMsg],
+          ["traceId", detail.traceId],
+          ["原因", detail.reason],
+          ["origin", detail.origin || location.origin],
+          ["validationURL", detail.validationURL],
+        ], detail);
+        detailTime.textContent = now();
+        detailTime.classList.remove("placeholder");
+      }
+
+      function clearError() {
+        errorBanner.hidden = true;
+        errorTitle.textContent = "出错了";
+        errorMsg.textContent = "";
+        errorFields.innerHTML = "";
+        errorJson.textContent = "";
+      }
+
+      function track(event, payload, level) {
         const empty = logList.querySelector(".placeholder");
         if (empty) empty.remove();
         logList.querySelectorAll("li.latest").forEach(function (el) {
           el.classList.remove("latest");
         });
         const li = document.createElement("li");
-        li.className = "latest";
+        li.className = level === "error" ? "latest error" : "latest";
         const meta = document.createElement("div");
         meta.className = "log-meta";
-        meta.textContent = now() + " · " + title;
-        const pre = document.createElement("pre");
-        pre.className = "json";
-        pre.style.maxHeight = "160px";
-        pre.style.marginTop = "4px";
-        pre.textContent = payload === undefined ? "" : pretty(payload);
+        meta.textContent =
+          now() + " · " + event + (level === "error" ? "  [error]" : "");
         li.appendChild(meta);
-        if (payload !== undefined) li.appendChild(pre);
+        if (payload !== undefined) {
+          const pre = document.createElement("pre");
+          pre.className = "json";
+          pre.style.maxHeight = "160px";
+          pre.style.marginTop = "4px";
+          pre.textContent = pretty(payload);
+          li.appendChild(pre);
+        }
         logList.appendChild(li);
         logList.scrollTop = logList.scrollHeight;
-      }
-
-      function setJson(el, value) {
-        el.classList.remove("placeholder");
-        el.textContent = pretty(value);
+        detailTime.textContent = now();
+        detailTime.classList.remove("placeholder");
+        console[level === "error" ? "error" : "log"]("[ApplePay]", event, payload);
       }
 
       function extractMerchantSession(payload) {
@@ -336,17 +512,35 @@
       }
 
       function checkAvailability() {
+        track("page_view", {
+          origin: location.origin,
+          href: location.href,
+          protocol: location.protocol,
+          userAgent: navigator.userAgent,
+        });
+
         if (!window.ApplePaySession) {
           availStatus.textContent = "不可用";
           availStatus.className = "status bad";
           availMsg.textContent =
             "当前浏览器没有 ApplePaySession。请用 Safari（macOS / iOS）在 HTTPS 下打开。";
           setPayEnabled(false);
-          appendLog("环境检测失败", {
+          const detail = {
             applePaySession: false,
             origin: location.origin,
             protocol: location.protocol,
-          });
+            message: "当前浏览器没有 ApplePaySession",
+          };
+          track("applepay_unavailable", detail, "error");
+          showError(
+            "Apple Pay 不可用",
+            detail.message,
+            [
+              ["origin", location.origin],
+              ["protocol", location.protocol],
+            ],
+            detail
+          );
           return false;
         }
 
@@ -357,12 +551,26 @@
           ? "Apple Pay 可用，可点击按钮拉起支付。"
           : "检测到 ApplePaySession，但 canMakePayments() 为 false（设备未开通 Apple Pay / 无可用卡）。";
         setPayEnabled(canPay);
-        appendLog("环境检测", {
+        const env = {
           applePaySession: true,
           version: getApplePayVersion(),
           canMakePayments: canPay,
           origin: location.origin,
-        });
+        };
+        if (canPay) {
+          track("applepay_available", env);
+        } else {
+          track("applepay_unavailable", env, "error");
+          showError(
+            "Apple Pay 不可支付",
+            "canMakePayments() 为 false：设备未开通 Apple Pay，或没有可用卡。",
+            [
+              ["version", env.version],
+              ["origin", location.origin],
+            ],
+            env
+          );
+        }
         return canPay;
       }
 
@@ -372,100 +580,344 @@
           payWayCode: PAY_WAY_CODE,
           channelCode: CHANNEL_CODE,
         };
-        appendLog("请求域名校验", { url: VERIFY_URL, body: body });
-
-        const res = await fetch(VERIFY_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(body),
+        setVerifyState("warn", "校验中");
+        fillFields(verifyFields, [
+          ["结果", "请求中…"],
+          ["origin", location.origin],
+          ["validationURL", validationURL],
+          ["payWayCode", PAY_WAY_CODE],
+          ["channelCode", CHANNEL_CODE],
+        ]);
+        track("domain_verify_request", {
+          url: VERIFY_URL,
+          origin: location.origin,
+          body: body,
         });
 
+        let res;
+        try {
+          res = await fetch(VERIFY_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(body),
+          });
+        } catch (err) {
+          const fail = {
+            stage: "fetch",
+            reason: "网络错误或 CORS 拦截，请求未到达或浏览器拦截了响应",
+            message: err && err.message ? err.message : String(err),
+            name: err && err.name,
+            url: VERIFY_URL,
+            origin: location.origin,
+            validationURL: validationURL,
+            request: body,
+            error: serializeError(err),
+          };
+          track("domain_verify_fail", fail, "error");
+          showDomainVerifyFail(fail);
+          throw err;
+        }
+
         const text = await res.text();
-        let json;
+        let json = null;
         try {
           json = text ? JSON.parse(text) : null;
         } catch (err) {
-          throw new Error(
-            "校验接口返回非 JSON（HTTP " + res.status + "）：" + text
-          );
+          const fail = {
+            stage: "parse",
+            reason: "校验接口返回非 JSON",
+            message: err.message,
+            httpStatus: res.status,
+            url: VERIFY_URL,
+            origin: location.origin,
+            validationURL: validationURL,
+            request: body,
+            rawText: text,
+          };
+          track("domain_verify_fail", fail, "error");
+          showDomainVerifyFail(fail);
+          throw err;
         }
 
-        appendLog("域名校验响应 HTTP " + res.status, json);
+        track("domain_verify_response", {
+          httpStatus: res.status,
+          ok: res.ok,
+          body: json,
+        });
         setJson(sessionJson, json);
         detailTime.textContent = now();
         detailTime.classList.remove("placeholder");
 
-        if (!res.ok) {
-          throw new Error("校验接口 HTTP " + res.status);
-        }
-        if (json && json.success === false) {
-          throw new Error(
-            json.returnMsg || json.message || "校验失败 " + json.returnCode
-          );
+        const apiMsg = pickApiMessage(json);
+        const failedByHttp = !res.ok;
+        const failedByBiz =
+          json &&
+          (json.success === false ||
+            (json.returnCode &&
+              String(json.returnCode) !== "00000" &&
+              String(json.returnCode) !== "0"));
+
+        if (failedByHttp || failedByBiz) {
+          const fail = {
+            stage: failedByHttp ? "http" : "business",
+            reason: failedByHttp
+              ? "校验接口 HTTP " + res.status
+              : "校验接口业务失败",
+            httpStatus: res.status,
+            returnCode: json && json.returnCode,
+            returnMsg: apiMsg,
+            traceId: json && (json.traceId || json.traceID),
+            extend: json && json.extend,
+            url: VERIFY_URL,
+            origin: location.origin,
+            validationURL: validationURL,
+            request: body,
+            response: json,
+          };
+          track("domain_verify_fail", fail, "error");
+          showDomainVerifyFail(fail);
+          throw new Error(apiMsg || fail.reason);
         }
 
-        return extractMerchantSession(json);
+        let merchantSession;
+        try {
+          merchantSession = extractMerchantSession(json);
+        } catch (err) {
+          const fail = {
+            stage: "extract",
+            reason: "无法从校验响应中解析 merchant session",
+            message: err.message,
+            httpStatus: res.status,
+            returnCode: json && json.returnCode,
+            returnMsg: apiMsg,
+            traceId: json && json.traceId,
+            url: VERIFY_URL,
+            origin: location.origin,
+            validationURL: validationURL,
+            request: body,
+            response: json,
+          };
+          track("domain_verify_fail", fail, "error");
+          showDomainVerifyFail(fail);
+          throw err;
+        }
+
+        if (!merchantSession || !merchantSession.merchantSessionIdentifier) {
+          const fail = {
+            stage: "extract",
+            reason: "校验响应缺少 merchantSessionIdentifier，域名校验未真正通过",
+            httpStatus: res.status,
+            returnCode: json && json.returnCode,
+            returnMsg: apiMsg,
+            traceId: json && json.traceId,
+            url: VERIFY_URL,
+            origin: location.origin,
+            validationURL: validationURL,
+            request: body,
+            response: json,
+            merchantSession: merchantSession,
+          };
+          track("domain_verify_fail", fail, "error");
+          showDomainVerifyFail(fail);
+          throw new Error(fail.reason);
+        }
+
+        setVerifyState("ok", "通过");
+        fillFields(verifyFields, [
+          ["结果", "域名校验通过"],
+          ["merchantSessionIdentifier", merchantSession.merchantSessionIdentifier],
+          ["domainName", merchantSession.domainName],
+          ["displayName", merchantSession.displayName],
+          ["origin", location.origin],
+        ]);
+        track("domain_verify_success", merchantSession);
+        return merchantSession;
       }
 
       function startApplePay() {
+        clearError();
+        setVerifyState("", "未开始");
+        fillFields(verifyFields, [
+          ["结果", "等待 onvalidatemerchant"],
+        ]);
+        sessionJson.className = "json placeholder";
+        sessionJson.textContent = "等待 onvalidatemerchant…";
+        tokenJson.className = "json placeholder";
+        tokenJson.textContent = "等待 onpaymentauthorized…";
+
+        track("applepay_click", {
+          origin: location.origin,
+          request: PAYMENT_REQUEST,
+        });
+
         if (!window.ApplePaySession) {
-          appendLog("无法开始", "ApplePaySession 不存在");
+          const detail = { message: "ApplePaySession 不存在" };
+          track("applepay_error", detail, "error");
+          showError("无法开始支付", detail.message, [["origin", location.origin]], detail);
           return;
         }
 
         const version = getApplePayVersion();
-        const session = new ApplePaySession(version, PAYMENT_REQUEST);
-        appendLog("ApplePaySession.begin", {
+        let session;
+        try {
+          session = new ApplePaySession(version, PAYMENT_REQUEST);
+        } catch (err) {
+          const detail = {
+            stage: "create_session",
+            version: version,
+            request: PAYMENT_REQUEST,
+            error: serializeError(err),
+          };
+          track("applepay_error", detail, "error");
+          showError(
+            "创建 ApplePaySession 失败",
+            err.message || String(err),
+            [
+              ["version", version],
+              ["origin", location.origin],
+            ],
+            detail
+          );
+          return;
+        }
+
+        track("applepay_session_created", {
           version: version,
           request: PAYMENT_REQUEST,
         });
 
         session.onvalidatemerchant = async function (event) {
+          track("onvalidatemerchant", {
+            validationURL: event.validationURL,
+            origin: location.origin,
+          });
           try {
-            appendLog("onvalidatemerchant", {
-              validationURL: event.validationURL,
-            });
             const merchantSession = await verifyMerchant(event.validationURL);
-            appendLog("completeMerchantValidation", merchantSession);
-            session.completeMerchantValidation(merchantSession);
+            try {
+              session.completeMerchantValidation(merchantSession);
+              track("complete_merchant_validation", {
+                merchantSessionIdentifier:
+                  merchantSession.merchantSessionIdentifier,
+              });
+            } catch (err) {
+              const fail = {
+                stage: "completeMerchantValidation",
+                reason: "completeMerchantValidation 抛错，merchant session 可能无效",
+                message: err.message,
+                origin: location.origin,
+                validationURL: event.validationURL,
+                merchantSession: merchantSession,
+                error: serializeError(err),
+              };
+              track("domain_verify_fail", fail, "error");
+              showDomainVerifyFail(fail);
+              session.abort();
+            }
           } catch (err) {
-            appendLog(
-              "商户校验失败",
-              String(err && err.message ? err.message : err)
-            );
-            session.abort();
+            track("onvalidatemerchant_error", serializeError(err), "error");
+            try {
+              session.abort();
+            } catch (abortErr) {
+              track("session_abort_error", serializeError(abortErr), "error");
+            }
           }
         };
 
         session.onpaymentauthorized = function (event) {
           const payment = event.payment;
-          appendLog("onpaymentauthorized", payment);
+          track("onpaymentauthorized", payment);
           setJson(tokenJson, payment);
-          detailTime.textContent = now();
-          session.completePayment({
-            status: ApplePaySession.STATUS_SUCCESS,
+          try {
+            session.completePayment({
+              status: ApplePaySession.STATUS_SUCCESS,
+            });
+            track("complete_payment", { status: "STATUS_SUCCESS" });
+          } catch (err) {
+            track("complete_payment_error", serializeError(err), "error");
+            showError(
+              "completePayment 失败",
+              err.message || String(err),
+              [],
+              serializeError(err)
+            );
+          }
+        };
+
+        session.oncancel = function (event) {
+          track("oncancel", {
+            message: "用户取消或会话中止（含域名校验失败后 abort）",
+            event: event || null,
           });
         };
 
-        session.oncancel = function () {
-          appendLog("oncancel", "用户取消或会话中止");
-        };
-
-        session.begin();
+        try {
+          session.begin();
+          track("applepay_begin", { version: version });
+        } catch (err) {
+          const detail = {
+            stage: "begin",
+            message: err.message,
+            error: serializeError(err),
+          };
+          track("applepay_error", detail, "error");
+          showError(
+            "ApplePaySession.begin 失败",
+            err.message || String(err),
+            [["origin", location.origin]],
+            detail
+          );
+        }
       }
 
       payBtn.addEventListener("click", startApplePay);
       clearBtn.addEventListener("click", function () {
-        logList.innerHTML = '<li class="placeholder">暂无日志</li>';
+        logList.innerHTML = '<li class="placeholder">暂无埋点</li>';
         sessionJson.className = "json placeholder";
         sessionJson.textContent = "等待 onvalidatemerchant…";
         tokenJson.className = "json placeholder";
         tokenJson.textContent = "等待 onpaymentauthorized…";
         detailTime.className = "placeholder";
         detailTime.textContent = "尚未开始";
+        setVerifyState("", "未开始");
+        fillFields(verifyFields, [["结果", "等待点击 Apple Pay"]]);
+        verifyResult.className = "placeholder";
+        clearError();
+      });
+
+      window.addEventListener("error", function (event) {
+        const detail = {
+          message: event.message,
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+          error: serializeError(event.error),
+        };
+        track("window_error", detail, "error");
+        showError(
+          "页面脚本错误",
+          event.message || "未知脚本错误",
+          [
+            ["filename", event.filename],
+            ["line", event.lineno],
+          ],
+          detail
+        );
+      });
+
+      window.addEventListener("unhandledrejection", function (event) {
+        const detail = {
+          reason: serializeError(event.reason),
+        };
+        track("unhandled_rejection", detail, "error");
+        showError(
+          "未处理的 Promise 错误",
+          (event.reason && event.reason.message) || String(event.reason),
+          [],
+          detail
+        );
       });
 
       checkAvailability();
