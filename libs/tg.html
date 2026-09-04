@@ -74,8 +74,7 @@
         border: 1px solid #c5c5c5;
         border-radius: 6px;
         background: #fff;
-        box-shadow:
-          0 4px 6px rgba(0, 0, 0, 0.08),
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08),
           0 12px 24px rgba(0, 0, 0, 0.12);
       }
     </style>
@@ -86,6 +85,9 @@
     <div class="toolbar">
       <input id="url-input" type="url" placeholder="https://example.com" />
       <button id="open-window-btn" type="button">当前窗口打开</button>
+      <button id="open-new-window-btn" class="secondary" type="button">
+        新窗口打开
+      </button>
       <button id="open-iframe-btn" class="secondary" type="button">
         iframe 内打开
       </button>
@@ -106,9 +108,10 @@
       function normalizeUrl(raw) {
         var url = (raw || "").trim();
         if (!url) return "";
-        if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) {
+        if (!/^https?:\/\//i.test(url)) {
           url = "https://" + url;
         }
+        urlInput.value = url;
         return url;
       }
 
@@ -128,6 +131,14 @@
           var url = normalizeUrl(urlInput.value);
           if (!url) return;
           window.location.href = url;
+        });
+
+      document
+        .getElementById("open-new-window-btn")
+        .addEventListener("click", function () {
+          var url = normalizeUrl(urlInput.value);
+          if (!url) return;
+          window.open(url, "_blank", "noopener,noreferrer");
         });
 
       document
