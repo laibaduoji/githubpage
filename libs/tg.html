@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URL 打开工具</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #1a1a1a;
+        background: #f0f2f5;
+      }
+      h1 {
+        margin: 0 0 16px;
+        font-size: 18px;
+      }
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .toolbar input {
+        flex: 1 1 280px;
+        min-width: 0;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .toolbar button {
+        padding: 8px 14px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        background: #1a1a1a;
+        color: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .toolbar button.secondary {
+        background: #fff;
+        color: #1a1a1a;
+      }
+      .toolbar button:hover {
+        opacity: 0.9;
+      }
+      .iframe-url {
+        margin: 0 0 10px;
+        padding: 8px 10px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        word-break: break-all;
+      }
+      .iframe-url strong {
+        color: #666;
+        font-weight: 600;
+        margin-right: 6px;
+      }
+      #viewer {
+        display: block;
+        width: 100%;
+        min-height: 600px;
+        height: 70vh;
+        border: 1px solid #c5c5c5;
+        border-radius: 6px;
+        background: #fff;
+        box-shadow:
+          0 4px 6px rgba(0, 0, 0, 0.08),
+          0 12px 24px rgba(0, 0, 0, 0.12);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>URL 打开工具</h1>
+
+    <div class="toolbar">
+      <input id="url-input" type="url" placeholder="https://example.com" />
+      <button id="open-window-btn" type="button">当前窗口打开</button>
+      <button id="open-iframe-btn" class="secondary" type="button">
+        iframe 内打开
+      </button>
+    </div>
+
+    <p class="iframe-url">
+      <strong>iframe 链接：</strong>
+      <span id="iframe-url-text">（尚未加载）</span>
+    </p>
+
+    <iframe id="viewer" title="预览" src="about:blank"></iframe>
+
+    <script>
+      var urlInput = document.getElementById("url-input");
+      var iframe = document.getElementById("viewer");
+      var iframeUrlText = document.getElementById("iframe-url-text");
+
+      function normalizeUrl(raw) {
+        var url = (raw || "").trim();
+        if (!url) return "";
+        if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) {
+          url = "https://" + url;
+        }
+        return url;
+      }
+
+      function updateIframeUrlDisplay() {
+        var shown = iframe.getAttribute("src") || "";
+        try {
+          shown = iframe.contentWindow.location.href || shown;
+        } catch (e) {
+          // 跨域时只能显示我们设置的 src
+        }
+        iframeUrlText.textContent = shown || "（尚未加载）";
+      }
+
+      document
+        .getElementById("open-window-btn")
+        .addEventListener("click", function () {
+          var url = normalizeUrl(urlInput.value);
+          if (!url) return;
+          window.location.href = url;
+        });
+
+      document
+        .getElementById("open-iframe-btn")
+        .addEventListener("click", function () {
+          var url = normalizeUrl(urlInput.value);
+          if (!url) return;
+          iframe.src = url;
+          updateIframeUrlDisplay();
+        });
+
+      iframe.addEventListener("load", updateIframeUrlDisplay);
+    </script>
+  </body>
+</html>
