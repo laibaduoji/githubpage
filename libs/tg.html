@@ -152,7 +152,11 @@
           setTimeout(function () {
             try {
               win.close();
-            } catch (e) {}
+              console.log("win", win);
+              console.log("e colse success");
+            } catch (e) {
+              console.log("e colse", e);
+            }
           }, 4000);
         });
 
