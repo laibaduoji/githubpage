@@ -167,7 +167,7 @@
           function dbg(hypothesisId, message, data) {
             var payload = {
               sessionId: "def934",
-              runId: "pre-fix",
+              runId: "blank-test",
               hypothesisId: hypothesisId,
               location: "libs/tg.html:open-new-window",
               message: message,
@@ -194,13 +194,13 @@
             ).catch(function () {});
           }
           // #endregion
-          // 不加 noopener，才能拿到窗口引用并在 TG Mini App / Custom Tab 里尝试关闭
-          var win = window.open(url, "_blank");
+          // Hypothesis F: about:blank first may keep a closable in-process window
+          // (direct https often hands off to Custom Tab; win.closed becomes true)
+          var win = window.open("about:blank", "_blank");
           // #region agent log
-          dbg("A", "after window.open", {
+          dbg("F", "after open about:blank", {
             url: url,
             winIsNull: win == null,
-            winType: win == null ? "null" : typeof win,
             closed: win ? !!win.closed : null,
             hasClose: win ? typeof win.close : null,
             ua: navigator.userAgent,
@@ -208,11 +208,26 @@
           });
           // #endregion
           if (!win) return;
+          try {
+            win.location.href = url;
+          } catch (navErr) {
+            // #region agent log
+            dbg("F", "navigate threw", {
+              err: String(navErr && navErr.message ? navErr.message : navErr),
+            });
+            // #endregion
+          }
+          // #region agent log
+          dbg("F", "after assign location", {
+            closed: !!win.closed,
+            hasOpener: !!win.opener,
+          });
+          // #endregion
           setTimeout(function () {
             // #region agent log
-            dbg("D", "timer fired before close", {
+            dbg("F", "timer fired before close", {
               closedBefore: !!win.closed,
-              hasOpener: !!(win.opener),
+              hasOpener: !!win.opener,
             });
             // #endregion
             var threw = false;
@@ -224,7 +239,7 @@
               errMsg = String(e && e.message ? e.message : e);
             }
             // #region agent log
-            dbg("C", "after win.close", {
+            dbg("F", "after win.close", {
               threw: threw,
               errMsg: errMsg,
               closedAfter: !!win.closed,
