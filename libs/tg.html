@@ -141,7 +141,14 @@
         .addEventListener("click", function () {
           var url = normalizeUrl(urlInput.value);
           if (!url) return;
-          window.open(url, "_blank", "noopener,noreferrer");
+          // 不加 noopener，才能拿到窗口引用并在 TG Mini App / Custom Tab 里尝试关闭
+          var win = window.open(url, "_blank");
+          if (!win) return;
+          setTimeout(function () {
+            try {
+              win.close();
+            } catch (e) {}
+          }, 3000);
         });
 
       document
