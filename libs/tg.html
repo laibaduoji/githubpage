@@ -88,6 +88,9 @@
       <button id="open-new-window-btn" class="secondary" type="button">
         新窗口打开
       </button>
+      <button id="open-new-window-close-btn" class="secondary" type="button">
+        新窗口打开并 3 秒后关闭
+      </button>
       <button id="open-iframe-btn" class="secondary" type="button">
         iframe 内打开
       </button>
@@ -139,6 +142,20 @@
           var url = normalizeUrl(urlInput.value);
           if (!url) return;
           window.open(url, "_blank", "noopener,noreferrer");
+        });
+
+      document
+        .getElementById("open-new-window-close-btn")
+        .addEventListener("click", function () {
+          var url = normalizeUrl(urlInput.value);
+          if (!url) return;
+          var win = window.open(url, "_blank");
+          if (!win) return;
+          setTimeout(function () {
+            try {
+              win.close();
+            } catch (e) {}
+          }, 3000);
         });
 
       document
