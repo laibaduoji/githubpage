@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>URL 打开工具</title>
+    <title>TG Mini App · Ramp iframe 测试</title>
     <style>
       * {
         box-sizing: border-box;
@@ -46,10 +46,6 @@
         font-size: 13px;
         white-space: nowrap;
       }
-      .toolbar button.secondary {
-        background: #fff;
-        color: #1a1a1a;
-      }
       .toolbar button:hover {
         opacity: 0.9;
       }
@@ -66,6 +62,11 @@
         font-weight: 600;
         margin-right: 6px;
       }
+      .hint {
+        margin: 0 0 10px;
+        font-size: 12px;
+        color: #666;
+      }
       #viewer {
         display: block;
         width: 100%;
@@ -77,58 +78,58 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08),
           0 12px 24px rgba(0, 0, 0, 0.12);
       }
+      .log {
+        margin-top: 12px;
+        padding: 10px;
+        background: #111;
+        color: #9fef00;
+        border-radius: 6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+        max-height: 220px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .log-empty {
+        color: #888;
+      }
     </style>
   </head>
   <body>
-    <h1>URL 打开工具</h1>
+    <h1>TG Mini App · Ramp iframe 测试</h1>
 
     <div class="toolbar">
       <input
         id="url-input"
         type="url"
-        value="https://www.baidu.com"
-        placeholder="https://example.com"
+        value=""
+        placeholder="粘贴 Ramp 入口 URL（含 appId=qx6UINl9GcM51rwf）"
       />
-      <button id="open-window-btn" type="button">当前窗口打开</button>
-      <button id="open-new-window-btn" class="secondary" type="button">
-        新窗口打开
-      </button>
-      <button id="open-new-window-close-btn" class="secondary" type="button">
-        新窗口打开并 4 秒后关闭
-      </button>
-      <button id="open-iframe-btn" class="secondary" type="button">
-        iframe 内打开
-      </button>
+      <button id="open-iframe-btn" type="button">iframe 内打开</button>
     </div>
+
+    <p class="hint">
+      模拟 TG 父页：Ramp 在 iframe 内，通过
+      <code>window.parent.postMessage</code> 上报
+      <code>type: "orderClosed"</code>。本页监听该消息并打日志（正式 TG
+      侧可在此关闭 Mini App）。
+    </p>
 
     <p class="iframe-url">
       <strong>iframe 链接：</strong>
       <span id="iframe-url-text">（尚未加载）</span>
     </p>
 
-    <!-- #region agent log -->
-    <pre
-      id="agent-debug"
-      style="
-        margin: 0 0 10px;
-        padding: 8px 10px;
-        background: #111;
-        color: #9f9;
-        font-size: 11px;
-        max-height: 160px;
-        overflow: auto;
-        white-space: pre-wrap;
-        word-break: break-all;
-      "
-    ></pre>
-    <!-- #endregion -->
+    <iframe id="viewer" title="Ramp" src="about:blank"></iframe>
 
-    <iframe id="viewer" title="预览" src="about:blank"></iframe>
+    <div id="message-log" class="log log-empty">等待 Ramp postMessage…</div>
 
     <script>
       var urlInput = document.getElementById("url-input");
       var iframe = document.getElementById("viewer");
       var iframeUrlText = document.getElementById("iframe-url-text");
+      var messageLog = document.getElementById("message-log");
 
       function normalizeUrl(raw) {
         var url = (raw || "").trim();
@@ -144,123 +145,19 @@
         var shown = iframe.getAttribute("src") || "";
         try {
           shown = iframe.contentWindow.location.href || shown;
-        } catch (e) {
-          // 跨域时只能显示我们设置的 src
-        }
+        } catch (e) {}
         iframeUrlText.textContent = shown || "（尚未加载）";
       }
 
-      document
-        .getElementById("open-window-btn")
-        .addEventListener("click", function () {
-          var url = normalizeUrl(urlInput.value);
-          if (!url) return;
-          window.location.href = url;
-        });
-
-      document
-        .getElementById("open-new-window-btn")
-        .addEventListener("click", function () {
-          var url = normalizeUrl(urlInput.value);
-          if (!url) return;
-          // #region agent log
-          function dbg(hypothesisId, message, data) {
-            var payload = {
-              sessionId: "def934",
-              runId: "blank-test",
-              hypothesisId: hypothesisId,
-              location: "libs/tg.html:open-new-window",
-              message: message,
-              data: data || {},
-              timestamp: Date.now(),
-            };
-            try {
-              var el = document.getElementById("agent-debug");
-              if (el) {
-                el.textContent +=
-                  JSON.stringify(payload) + "\n";
-              }
-            } catch (e0) {}
-            fetch(
-              "http://127.0.0.1:7902/ingest/e962ae33-79a5-47b7-9a1f-bd404ead125d",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Debug-Session-Id": "def934",
-                },
-                body: JSON.stringify(payload),
-              }
-            ).catch(function () {});
-          }
-          // #endregion
-          // Hypothesis F: about:blank first may keep a closable in-process window
-          // (direct https often hands off to Custom Tab; win.closed becomes true)
-          var win = window.open("about:blank", "_blank");
-          // #region agent log
-          dbg("F", "after open about:blank", {
-            url: url,
-            winIsNull: win == null,
-            closed: win ? !!win.closed : null,
-            hasClose: win ? typeof win.close : null,
-            ua: navigator.userAgent,
-            tgPresent: !!(window.Telegram && window.Telegram.WebApp),
-          });
-          // #endregion
-          if (!win) return;
-          try {
-            win.location.href = url;
-          } catch (navErr) {
-            // #region agent log
-            dbg("F", "navigate threw", {
-              err: String(navErr && navErr.message ? navErr.message : navErr),
-            });
-            // #endregion
-          }
-          // #region agent log
-          dbg("F", "after assign location", {
-            closed: !!win.closed,
-            hasOpener: !!win.opener,
-          });
-          // #endregion
-          setTimeout(function () {
-            // #region agent log
-            dbg("F", "timer fired before close", {
-              closedBefore: !!win.closed,
-              hasOpener: !!win.opener,
-            });
-            // #endregion
-            var threw = false;
-            var errMsg = "";
-            try {
-              win.close();
-            } catch (e) {
-              threw = true;
-              errMsg = String(e && e.message ? e.message : e);
-            }
-            // #region agent log
-            dbg("F", "after win.close", {
-              threw: threw,
-              errMsg: errMsg,
-              closedAfter: !!win.closed,
-            });
-            // #endregion
-          }, 4000);
-        });
-
-      document
-        .getElementById("open-new-window-close-btn")
-        .addEventListener("click", function () {
-          var url = normalizeUrl(urlInput.value);
-          if (!url) return;
-          var win = window.open(url, "_blank");
-          if (!win) return;
-          setTimeout(function () {
-            try {
-              win.close();
-            } catch (e) {}
-          }, 3000);
-        });
+      function appendLog(line) {
+        if (messageLog.classList.contains("log-empty")) {
+          messageLog.classList.remove("log-empty");
+          messageLog.textContent = "";
+        }
+        var time = new Date().toISOString().slice(11, 23);
+        messageLog.textContent += "[" + time + "] " + line + "\n";
+        messageLog.scrollTop = messageLog.scrollHeight;
+      }
 
       document
         .getElementById("open-iframe-btn")
@@ -269,9 +166,32 @@
           if (!url) return;
           iframe.src = url;
           updateIframeUrlDisplay();
+          appendLog("iframe src = " + url);
         });
 
       iframe.addEventListener("load", updateIframeUrlDisplay);
+
+      // Align with Ramp: window.parent.postMessage({ type: "orderClosed", ... }, "*")
+      window.addEventListener("message", function (event) {
+        var data = event.data;
+        if (!data || typeof data !== "object") return;
+
+        if (data.type === "orderClosed") {
+          appendLog(
+            "orderClosed from " +
+              event.origin +
+              "\n" +
+              JSON.stringify(data, null, 2)
+          );
+          // Telegram Mini App 正式环境可在此：
+          // if (window.Telegram && Telegram.WebApp) Telegram.WebApp.close();
+          return;
+        }
+
+        if (data.type === "close") {
+          appendLog("close from " + event.origin);
+        }
+      });
     </script>
   </body>
 </html>

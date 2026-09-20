@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>支付弹窗</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      .bar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 10px;
+        background: #111;
+        color: #eee;
+        font-size: 12px;
+      }
+      .bar span {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .bar button {
+        flex: none;
+        padding: 6px 10px;
+        border: 0;
+        border-radius: 4px;
+        background: #fff;
+        cursor: pointer;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: calc(100% - 40px);
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <span id="status">等待订单消息…</span>
+      <button id="close-btn" type="button">关闭窗口</button>
+    </div>
+    <iframe id="pay" title="支付页"></iframe>
+    <script>
+      var params = new URLSearchParams(location.search);
+      var url = (params.get("url") || "").trim();
+      var iframe = document.getElementById("pay");
+      var statusEl = document.getElementById("status");
+
+      function tryClose() {
+        statusEl.textContent = "正在关闭…";
+        try {
+          window.close();
+        } catch (e) {}
+        setTimeout(function () {
+          if (!window.closed) {
+            statusEl.textContent =
+              "window.close() 未生效（Custom Tab / 非脚本打开的窗口无法关）。可点系统返回。";
+          }
+        }, 300);
+      }
+
+      function isOrderDone(data) {
+        if (!data) return false;
+        if (typeof data === "string") {
+          try {
+            data = JSON.parse(data);
+          } catch (e) {
+            return data === "orderClosed" || data === "close";
+          }
+        }
+        var type = data.type || data.event || data.name || "";
+        return (
+          type === "orderClosed" ||
+          type === "close" ||
+          type === "order_completed" ||
+          data.orderClosed === true
+        );
+      }
+
+      window.addEventListener("message", function (event) {
+        if (isOrderDone(event.data)) {
+          statusEl.textContent = "收到订单完成，关闭窗口";
+          tryClose();
+        }
+      });
+
+      document.getElementById("close-btn").addEventListener("click", tryClose);
+
+      if (url) {
+        iframe.src = url;
+        statusEl.textContent = url;
+      } else {
+        statusEl.textContent = "缺少 url 参数";
+      }
+    </script>
+  </body>
+</html>
